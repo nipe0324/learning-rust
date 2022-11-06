@@ -11,9 +11,16 @@
 - 生産性
   - パッケージマネージャやビルド補助ツールなどの開発ツールが豊富
 
-## Rustのインストール
+## Rustのインストールとツール群
 
 - Rustのインストール手順: https://www.rust-lang.org/ja/tools/install
+- パッケージ管理 & ビルドツール Cargo
+- コードフォーマッタ rustfmt: `cargo fmt`
+- 静的解析ツール Clippy: `cargo clippy`
+- テスト: `cargo test`
+- タスクの自動実行: `cargo-make`
+- [crates.io](https://crates.io/): Rustのパッケージ公開サイト
+- [Lib.rs](https://lib.rs/):  カテゴリごとにクレートを探せる
 
 ## 言語仕様抜粋
 
