@@ -18,7 +18,7 @@
 - コードフォーマッタ rustfmt: `cargo fmt`
 - 静的解析ツール Clippy: `cargo clippy`
 - テスト: `cargo test`
-- タスクの自動実行: `cargo-make`
+- タスクの自動実行: `cargo-make`: `cargo install --force cargo-make`
 - [crates.io](https://crates.io/): Rustのパッケージ公開サイト
 - [Lib.rs](https://lib.rs/):  カテゴリごとにクレートを探せる
 
