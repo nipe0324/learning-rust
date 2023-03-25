@@ -11,6 +11,14 @@
 - 生産性
   - パッケージマネージャやビルド補助ツールなどの開発ツールが豊富
 
+## Rustの主要サイト
+
+- [rust-lang - Github](https://github.com/rust-lang/rust)
+- [The Rust Programming Language](https://doc.rust-lang.org/stable/book/)
+  - 日本語版: https://doc.rust-jp.rs/book-ja/
+- [crates.io](https://crates.io/): Rustのパッケージ公開サイト
+- [Lib.rs](https://lib.rs/): カテゴリごとにクレートを探せる
+
 ## Rustのインストールとツール群
 
 - Rustのインストール手順: https://www.rust-lang.org/ja/tools/install
@@ -19,8 +27,6 @@
 - 静的解析ツール Clippy: `cargo clippy`
 - テスト: `cargo test`
 - タスクの自動実行: `cargo-make`: `cargo install --force cargo-make`
-- [crates.io](https://crates.io/): Rustのパッケージ公開サイト
-- [Lib.rs](https://lib.rs/):  カテゴリごとにクレートを探せる
 
 ## 言語仕様抜粋
 
