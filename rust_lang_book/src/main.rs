@@ -1,21 +1,29 @@
-fn first_word(s: &str) -> &str {
-    let bytes = s.as_bytes();
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
 
-    for (i, &item) in bytes.iter().enumerate() {
-        if item == b' ' {
-            return &s[0..i];
-        }
+impl Rectangle {
+    fn square(size: u32) -> Rectangle {
+        Rectangle { width: size, height: size }
     }
 
-    &s[..]
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
 }
 
 fn main() {
-    let s = String::from("hello world");
+    let rect1 = Rectangle { width: 30, height: 50 };
+    let rect2 = Rectangle::square(40);
 
-    let word = first_word(&s);
-
-    // s.clear(); // コンパイルエラーが発生する: cannot borrow as mutable
-
-    println!("the first word is: {}", word);
+    println!(
+        "The area of the rect1 is {} square pixels.",
+        rect1.area()
+    );
+    println!(
+        "The area of the rect2 is {} square pixels.",
+        rect2.area()
+    );
 }
