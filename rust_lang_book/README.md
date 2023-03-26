@@ -349,6 +349,53 @@ fn main() {
 - 構造体を使用することで、関連のあるデータを相互に結合させたまま、各部品に名前を付け、コードを明確にすることができる。
 - また、メソッドにより、構造体のインスタンスが行う動作を指定したり、関連関数により構造体に関連する関数の名前空間わけすることができる。
 
+補足：所有権の移動と参照の検証
+
+```rs
+#[derive(Debug)]
+struct MyStruct {}
+
+impl Drop for MyStruct {
+    fn drop(&mut self) {
+        println!("drop MyStruct: {:?}", self);
+        // self.drop(); // 書き方あっているかわからん
+    }
+}
+
+// 所有権が移動する
+fn do_sometihng(s: MyStruct) {
+    println!("called do_something: {:?}", s);
+} // s1のdropがここで呼ばれる
+
+// 参照で渡すので所有権が移動しない
+fn borrow_sometihng(s: &MyStruct) {
+    println!("called borrow_sometihng: {:?}", s);
+}
+
+fn main() {
+    println!("1. move ownership");
+    let s1 = MyStruct {};
+    do_sometihng(s1);
+    println!("after do_something\n");
+
+    println!("2. reference ownership");
+    let s2 = MyStruct {};
+    borrow_sometihng(&s2);
+    println!("after borrow_sometihng");
+} // s2のdropがここで呼ばれる
+
+// [Output]
+// 1. move ownership
+// called do_something: MyStruct
+// drop MyStruct: MyStruct
+// after do_something
+
+// 2. reference ownership
+// called borrow_sometihng: MyStruct
+// after borrow_sometihng
+// drop MyStruct: MyStruct
+```
+
 ```rs
 // ユーザアカウントに関する情報を保持する構造体
 struct User {
