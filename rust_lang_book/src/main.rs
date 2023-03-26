@@ -1,29 +1,11 @@
-#[derive(Debug)]
-struct Rectangle {
-    width: u32,
-    height: u32,
-}
-
-impl Rectangle {
-    fn square(size: u32) -> Rectangle {
-        Rectangle { width: size, height: size }
-    }
-
-    fn area(&self) -> u32 {
-        self.width * self.height
-    }
-}
-
 fn main() {
-    let rect1 = Rectangle { width: 30, height: 50 };
-    let rect2 = Rectangle::square(40);
+    let some_u8_value = Some(0u8);
+    match some_u8_value {
+        Some(3) => println!("three"),
+        _ => (),
+    }
 
-    println!(
-        "The area of the rect1 is {} square pixels.",
-        rect1.area()
-    );
-    println!(
-        "The area of the rect2 is {} square pixels.",
-        rect2.area()
-    );
+    if let Some(3) = some_u8_value {
+        println!("three");
+    }
 }
