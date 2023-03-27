@@ -1,18 +1,32 @@
-use std::io;
-use std::io::Read;
-use std::fs::File;
+use std::fmt::Display;
 
-fn read_username_from_file() -> Result<String, io::Error> {
-    let mut f = File::open("hello.txt")?;
-    let mut s = String::new();
-    f.read_to_string(&mut s)?;
-    Ok(s)
+struct Pair<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+// 型TがDisplayトレイトとPartialOrdトレイトを実装しているときのみ、
+// cmp_displayメソッドを実装する
+impl<T: Display + PartialOrd> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The largest member is x = {}", self.x);
+        } else {
+            println!("The largest member is y = {}", self.y);
+        }
+    }
 }
 
 fn main() {
-    let s = read_username_from_file();
-    match s {
-        Ok(s) => println!("s is {}", s),
-        Err(e) => println!("e is {:?}", e)
-    }
+    let p1 = Pair::new(1, 2);
+    p1.cmp_display();
+
+    let p2 = Pair::new(vec![1], vec![2]);
+    // p2.cmp_display(); は呼び出せない
 }

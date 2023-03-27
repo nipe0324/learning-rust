@@ -10,7 +10,7 @@
 - [パッケージ、クレート、モジュール](./docs/package_crate_module.md)
 - [コレクション](./docs/collections.md)
 - [エラー処理](./docs/error_handling.md)
-- ジェネリック型、トレイト、ライフタイム
+- [ジェネリック型、トレイト、ライフタイム](./docs/generics.md)
 - 自動テストを書く
 - パターンとマッチング
 - 入出力プロジェクト
