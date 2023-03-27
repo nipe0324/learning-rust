@@ -5,12 +5,13 @@
 - [Cargoの基礎](./docs/cargo.md)
 - [Rustの基本的な構文](./docs/rust_basic_syntax.md)
 - [所有権を理解する](./docs/ownership.md)
+- [ライフタイム](./docs/lifetime.md)
 - [構造体](./docs/struct.md)
 - [列挙型](./docs/enum.md)
 - [パッケージ、クレート、モジュール](./docs/package_crate_module.md)
 - [コレクション](./docs/collections.md)
 - [エラー処理](./docs/error_handling.md)
-- [ジェネリック型、トレイト、ライフタイム](./docs/generics.md)
+- [ジェネリックス、トレイト](./docs/generics.md)
 - 自動テストを書く
 - パターンとマッチング
 - 入出力プロジェクト
