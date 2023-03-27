@@ -9,7 +9,7 @@
 - [列挙型](./docs/enum.md)
 - [パッケージ、クレート、モジュール](./docs/package_crate_module.md)
 - [コレクション](./docs/collections.md)
-- エラー処理
+- [エラー処理](./docs/error_handling.md)
 - ジェネリック型、トレイト、ライフタイム
 - 自動テストを書く
 - パターンとマッチング
