@@ -12,8 +12,8 @@
 - [コレクション](./docs/collections.md)
 - [エラー処理](./docs/error_handling.md)
 - [ジェネリックス、トレイト](./docs/generics.md)
-- 自動テストを書く
-- パターンとマッチング
+- [自動テストを書く](./docs/testing.md)
+- [パターンとマッチング](./docs/patterns.md)
 - 入出力プロジェクト
 - 並行性
 - スマートポインタ
