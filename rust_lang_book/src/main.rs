@@ -1,13 +1,9 @@
-struct ImportantExcerpt<'a> {
-    part: &'a str,
+fn print_coordinates(&(x, y): &(i32, i32)) {
+    println!("Current location: ({}, {})", x, y);
 }
 
 fn main() {
-    let novel = String::from("Call me Ishmael. Some years ago...");
-    let first_sentence = novel.split('.').next().expect("Could not find a '.'");
-    let i = ImportantExcerpt {
-        part: first_sentence,
-    };
-
-    println!("i.part: {}", i.part);
+    let point = (3, 5);
+    print_coordinates(&point);
+    // Current location: (3, 5)
 }
