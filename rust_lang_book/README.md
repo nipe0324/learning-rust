@@ -15,7 +15,7 @@
 - [自動テストを書く](./docs/testing.md)
 - [パターンとマッチング](./docs/patterns.md)
 - [並行性](../docs/concurrency.md)
-- [関数型言語の機能：イテレータとクロージャ](../functional_features.md)
+- [関数型言語の機能：イテレータとクロージャ](./docs/functional_features.md)
 - 入出力プロジェクト
 - スマートポインタ
 - Rustのオブジェクト指向プログラミング機能

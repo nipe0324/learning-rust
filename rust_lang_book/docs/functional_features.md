@@ -246,3 +246,30 @@ fn using_other_iterator_trait_methods() {
     assert_eq!(18, sum);
 }
 ```
+
+- ループとイテレータのパフォーマンス比較すると、ほぼ同じだった（若干イテレータのほうが速い）
+- イテレータはRustのゼロコスト抽象化の一つで、抽象化をおこなっても追加の実行時オーバーヘッドをうまない
+
+```rs
+test bench_search_for  ... bench:  19,620,300 ns/iter (+/- 915,700)
+test bench_search_iter ... bench:  19,234,900 ns/iter (+/- 657,200)
+```
+
+- `coefficients`の値の繰り返しに対応するループは全く存在しない、
+- コンパイラは12回繰り返しがあることを把握しているので、ループを展開する。ループ制御コードのオーバーヘッドを除去し、代わりにループの繰り返しごとに同じコードを生成する最適化をする
+- 係数はすべてレジスタに保存され、値に非常に高速にアクセスする。
+
+```rs
+let buffer: &mut [i32];
+let coefficients: [i64; 12];
+let qlp_shift: i16;
+
+for i in 12..buffer.len() {
+    let prediction = coefficients.iter()
+                                 .zip(&buffer[i - 12..i])
+                                 .map(|(&c, &s)| c * s as i64)
+                                 .sum::<i64>() >> qlp_shift;
+    let delta = buffer[i];
+    buffer[i] = prediction as i32 + delta;
+}
+```
