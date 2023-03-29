@@ -100,4 +100,149 @@ fn main() {
 
 ## イテレータ
 
-- 一連の要素を処理する方法
+- イテレータパターンにより、一連の要素を順番に処理をすることができる。
+- イテレータは、各要素を繰り返し、シーケンスが終わったことを決定するロジックの責任を負う。
+
+```rs
+fn main() {
+    let v1 = vec![1, 2, 3];
+
+    // iterメソッドでイテレータを生成
+    for val in v1.iter() {
+        println!("Got: {}", val);
+    }
+}
+// Got: 1
+// Got: 2
+// Got: 3
+```
+
+- すべてのイテレータは、標準ライブラリで定義されている`Iterator`トレイトを実装している。
+
+```rs
+// 標準ライブラリの`Iterator`トレイトの定義抜粋
+pub trait Iterator {
+    type Item; // トレイトとの関連型（associated type）
+
+    fn next(&mut self) -> Option<Self::Item>;
+
+    // ...
+}
+```
+
+- イテレータを消費するメソッドは、消費アダプタと呼ばれる。呼び出しがイテレータの使いこみになる
+
+```rs
+#[test]
+fn iterator_sum() {
+    let v1 = vec![1, 2, 3];
+
+    let v1_iter = v1.iter();
+
+    let total: i32 = v1_iter.sum();
+
+    assert_eq!(total, 6);
+}
+```
+
+- 他のイテレータを生成するメソッドは、イテレータアダプタと知られている。
+- イテレータアダプタを複数回呼び出しを連結して、複雑な動作を読みやすい形で行うことができる
+
+```rs
+#[test]
+fn iterator_map() {
+    let v1: Vec<i32> = vec![1, 2, 3];
+
+    let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+
+    assert_eq!(v2, vec![2, 3, 4]);
+}
+```
+
+- イテレータで環境をキャプチャするクロージャを使用する
+
+```rs
+#[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String,
+}
+
+fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+    shoes.into_iter()
+        .filter(|s| s.size == shoe_size)
+        .collect()
+}
+
+#[test]
+fn filters_by_size() {
+    let shoes = vec![
+        Shoe { size: 10, style: String::from("sneaker") },
+        Shoe { size: 13, style: String::from("sandal") },
+        Shoe { size: 10, style: String::from("boot") },
+    ];
+
+    let in_my_size = shoes_in_my_size(shoes, 10);
+
+    assert_eq!(
+        in_my_size,
+        vec![
+            Shoe { size: 10, style: String::from("sneaker") },
+            Shoe { size: 10, style: String::from("boot") },
+        ]
+    );
+}
+```
+
+- `Iterator`トレイトで独自のイテレータを作成する
+
+```rs
+struct Counter {
+    count: u32,
+}
+
+impl Counter {
+    fn new() -> Counter {
+        Counter { count: 0 }
+    }
+}
+
+impl Iterator for Counter {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.count += 1;
+
+        if self.count < 6 {
+            Some(self.count)
+        } else {
+            None
+        }
+    }
+}
+
+#[test]
+fn calling_next_directly() {
+    // Iteratorトレイトを実装したのでnext()を使用することができる
+    let mut counter = Counter::new();
+
+    assert_eq!(counter.next(), Some(1));
+    assert_eq!(counter.next(), Some(2));
+    assert_eq!(counter.next(), Some(3));
+    assert_eq!(counter.next(), Some(4));
+    assert_eq!(counter.next(), Some(5));
+    assert_eq!(counter.next(), None);
+}
+
+#[test]
+fn using_other_iterator_trait_methods() {
+    // Iteratorトレイトに実装されているメソッドを使用できる
+    let sum: u32 = Counter::new()
+        .zip(Counter::new().skip(1))
+        .map(|(a, b)| a * b)
+        .filter(|x| x % 3 == 0)
+        .sum();
+
+    assert_eq!(18, sum);
+}
+```
