@@ -17,7 +17,7 @@
 - [スマートポインタ](./docs/smart_pointers.md)
 - [並行性](../docs/concurrency.md)
 - [関数型言語の機能：イテレータとクロージャ](./docs/functional_features.md)
-- Rustのオブジェクト指向プログラミング機能
+- [Rustのオブジェクト指向プログラミング機能](./docs/object_oriented_programming.md)
 - 高度な機能
 - [CargoとCrates.ioについてより詳しく](./docs/more_about_cargo.md)
 - マルチスレッドのWebサーバを構築
