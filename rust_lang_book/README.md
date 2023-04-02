@@ -14,7 +14,7 @@
 - [ジェネリックス、トレイト](./docs/generics.md)
 - [自動テストを書く](./docs/testing.md)
 - [パターンとマッチング](./docs/patterns.md)
-- スマートポインタ
+- [スマートポインタ](./docs/smart_pointers.md)
 - [並行性](../docs/concurrency.md)
 - [関数型言語の機能：イテレータとクロージャ](./docs/functional_features.md)
 - Rustのオブジェクト指向プログラミング機能
