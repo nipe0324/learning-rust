@@ -58,3 +58,7 @@
 - cargo run: 実行
 - cargo fmt: フォーマット
 - cargo test: テスト実行
+
+## その他
+
+- Rustを書く人を Rustacean とよんでいるらしい
