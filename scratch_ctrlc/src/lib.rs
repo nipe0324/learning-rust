@@ -30,15 +30,14 @@ where
     unsafe {
         match platform::init_os_handler() {
             Ok(_) => {}
-            Err(e) => {
+            Err(err) => {
                 INIT.store(false, Ordering::SeqCst);
-                return Err(e.info());
+                return Err(err.into());
             }
         }
     }
 
-    thread::Builder
-        .new()
+    thread::Builder::new()
         .name("ctrl-c".into())
         .spawn(move || loop {
             unsafe {

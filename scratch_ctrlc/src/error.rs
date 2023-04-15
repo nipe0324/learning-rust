@@ -2,6 +2,7 @@ use crate::platform;
 use std::fmt;
 
 /// Ctrl-C error.
+#[derive(Debug)]
 pub enum Error {
     /// Signal cound not be found from the system.
     NoSuchSignal(crate::SignalType),
@@ -34,7 +35,7 @@ impl fmt::Display for Error {
     }
 }
 
-impl fmt::error::Error for Error {
+impl std::error::Error for Error {
     fn description(&self) -> &str {
         self.describe()
     }
