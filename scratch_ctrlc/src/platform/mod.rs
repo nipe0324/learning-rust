@@ -5,7 +5,7 @@ mod unix;
 mod windows;
 
 #[cfg(unix)]
-mod use self::unix::*;
+pub use self::unix::*;
 
 #[cfg(windows)]
-mod use self::windows::*;
+pub use self::windows::*;

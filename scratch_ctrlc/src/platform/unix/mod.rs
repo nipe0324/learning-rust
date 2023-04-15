@@ -87,7 +87,11 @@ pub unsafe fn init_os_handler() -> Result<(), Error> {
     }
 
     let handler = signal::SigHandler::Handler(os_handler);
-    let new_action = signal::SigAction::new(handler, signal::SaFlags::SA_RESTART, signal::SigSet::empty());
+    let new_action = signal::SigAction::new(
+        handler,
+        signal::SaFlags::SA_RESTART,
+        signal::SigSet::empty(),
+    );
 
     #[allow(unused_variables)]
     let sigint_old = match signal::sigaction(signal::Signal::SIGINT, &new_action) {
@@ -102,7 +106,7 @@ pub unsafe fn init_os_handler() -> Result<(), Error> {
             Err(e) => {
                 signal::sigaction(signal::Signal::SIGINT, &signal_old).unwrap();
                 return Err(close_pipe(e));
-            },
+            }
         };
         match signal::sigaction(signal::Signal::SIGHUP, &new_action) {
             Ok(_) => {}
@@ -110,7 +114,7 @@ pub unsafe fn init_os_handler() -> Result<(), Error> {
                 signal::sigaction(signal::Signal::SIGINT, &signal_old).unwrap();
                 signal::sigaction(signal::Signal::SIGTERM, &sigterm_old).unwrap();
                 return Err(close_pipe(e));
-            },
+            }
         };
     }
 
@@ -129,10 +133,10 @@ pub unsafe fn block_ctrl_c() -> Result<(), CtrlcError> {
     // with std::os::unix::io::FromRawFd, this would handle EINTR
     // and everything for us.
     loop {
-        match unistd::read(PIPE.0, &mut buf[..]) { {
+        match unistd::read(PIPE.0, &mut buf[..]) {
             Ok(1) => break,
             Ok(_) => return Err(CtrlcError::System(io::ErrorKind::UnexpectedEof.into())),
-            Err(nix::errno::Errno::EINTR) => {},
+            Err(nix::errno::Errno::EINTR) => {}
             Err(e) => return Err(e.into()),
         }
     }
