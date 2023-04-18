@@ -1,8 +1,4 @@
-use axum::{
-    response::{IntoResponse},
-    routing,
-    Router,
-};
+use axum::{response::IntoResponse, routing, Router};
 
 use crate::response;
 use crate::views::{Home, Tweet};
