@@ -1,10 +1,13 @@
 use axum::{response::IntoResponse, routing, Router};
 
+use crate::controllers::tweets;
 use crate::response;
 use crate::views::{Home, Tweet};
 
 pub fn app() -> Router {
-    Router::new().route("/", routing::get(get))
+    Router::new()
+        .route("/", routing::get(get))
+        .nest("/tweets", tweets::tweets())
 }
 
 async fn get() -> impl IntoResponse {
