@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Rustwi</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <style lang="text/css">
+    .container {
+      display: flex;
+      justify-content: center;
+      margin-top: 100px;
+    }
+    .app {
+      width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app">
+      {% block app %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>
