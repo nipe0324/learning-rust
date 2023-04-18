@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - ./docker/pg:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rustwi
+    ports:
+      - '5433:5432'
