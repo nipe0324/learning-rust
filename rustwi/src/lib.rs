@@ -1,4 +1,5 @@
 mod controllers;
+mod database;
 mod response;
 mod views;
 

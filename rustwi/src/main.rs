@@ -7,9 +7,9 @@ async fn main() {
     }
     tracing_subscriber::fmt::init();
 
-    let app = rustwi::app();
+    let app = rustwi::app().await;
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 13001));
     tracing::debug!("listing on http://{}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())

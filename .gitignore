@@ -12,3 +12,6 @@ Cargo.lock
 
 # actix-web-blog
 actix-web-blog/posts.db
+
+# rustwi
+rustwi/docker/
