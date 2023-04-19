@@ -1,3 +1,5 @@
+use tokio_postgres::Row;
+
 use crate::database::ConnectionPool;
 use crate::entities::Tweet;
 use crate::repos::Tweets;
@@ -19,7 +21,16 @@ impl<'a> Tweets for TweetsImpl<'a> {
             .collect()
     }
 
-    async fn store(&self, entity: &Tweet) {
+    async fn find(&self, id: i32) -> Option<Tweet> {
+        let conn = self.pool.get().await.unwrap();
+        let row = conn
+            .query_opt("SELECT * FROM tweets WHERE id = $1", &[&id])
+            .await
+            .unwrap();
+        row.map(|r| r.into())
+    }
+
+    async fn create(&self, entity: &Tweet) {
         let conn = self.pool.get().await.unwrap();
         conn.execute(
             "INSERT INTO tweets (message, posted_at) VALUES ($1, $2)",
@@ -27,5 +38,22 @@ impl<'a> Tweets for TweetsImpl<'a> {
         )
         .await
         .unwrap();
+    }
+
+    async fn delete(&self, entity: &Tweet) {
+        let conn = self.pool.get().await.unwrap();
+        if let Some(id) = entity.id() {
+            if entity.is_deleted() {
+                conn.execute("DELETE FROM tweets WHERE id = $1", &[&id])
+                    .await
+                    .unwrap();
+            }
+        }
+    }
+}
+
+impl From<Row> for Tweet {
+    fn from(row: Row) -> Self {
+        Tweet::new(row.get("id"), row.get("message"), row.get("posted_at"))
     }
 }

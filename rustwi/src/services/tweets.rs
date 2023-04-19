@@ -11,7 +11,20 @@ pub async fn list_tweets(repo: &impl Tweets) -> Home {
 
 pub async fn create_tweet(repo: &impl Tweets, message: &str) {
     let new_tweet = Tweet::create(message);
-    repo.store(&new_tweet).await;
+    repo.create(&new_tweet).await;
+}
+
+pub async fn delete_tweet(repo: &impl Tweets, id: i32) {
+    let tweet = repo.find(id).await;
+    match tweet {
+        Some(mut tweet) => {
+            tweet.delete();
+            repo.delete(&tweet).await;
+        }
+        None => {
+            println!("Tweet not found: {}", id);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -52,5 +65,27 @@ mod tests {
 
         let result = super::list_tweets(&tweets).await;
         assert_eq!(result.tweets.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_delete_tweet() {
+        let mut tweets = MockTweets::new();
+        tweets.expect_find().returning(|_| Some(tweet(1)));
+        tweets
+            .expect_delete()
+            .withf(|e| e.id() == Some(1) && e.is_deleted())
+            .once()
+            .return_const(());
+
+        super::delete_tweet(&tweets, 1).await;
+    }
+
+    #[tokio::test]
+    async fn test_delete_tweet_not_found() {
+        let mut tweets = MockTweets::new();
+        tweets.expect_find().returning(|_| None);
+        tweets.expect_delete().never();
+
+        super::delete_tweet(&tweets, 1).await;
     }
 }
