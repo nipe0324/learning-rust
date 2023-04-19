@@ -1,8 +1,12 @@
-use axum::{extract::Form, response::IntoResponse, routing, Router};
+use axum::{
+    extract::{Extension, Form},
+    response::{IntoResponse, Redirect},
+    routing, Router,
+};
 use serde::Deserialize;
 
-use crate::response;
-use crate::views::{Home, Tweet};
+use crate::database::RepoProvider;
+use crate::services;
 
 pub fn tweets() -> Router {
     Router::new().route("/", routing::post(post))
@@ -13,12 +17,15 @@ struct TweetForm {
     message: String,
 }
 
-async fn post(form: Form<TweetForm>) -> impl IntoResponse {
-    let tweets = vec![Tweet {
-        name: "太郎".to_string(),
-        message: form.message.clone(),
-        posted_at: "2020-01-01 12:34".to_string(),
-    }];
-    let home = Home { tweets };
-    response::from_template(home)
+async fn post(_form: Form<TweetForm>) -> impl IntoResponse {
+    Redirect::to("/").into_response()
 }
+
+// async fn post(
+//     form: Form<TweetForm>,
+//     Extension(repo_provider): Extension<RepoProvider>,
+// ) -> impl IntoResponse {
+//     let tweet_repo = repo_provider.tweets();
+//     services::create_tweet(&tweet_repo, &form.message).await;
+//     Redirect::to("/").into_response()
+// }

@@ -1,3 +1,4 @@
+use crate::entities::Tweet;
 use crate::repos::Tweets;
 use crate::views::Home;
 
@@ -8,9 +9,14 @@ pub async fn list_tweets(repo: &impl Tweets) -> Home {
     }
 }
 
+pub async fn create_tweet(repo: &impl Tweets, message: &str) {
+    let new_tweet = Tweet::create(message);
+    repo.store(&new_tweet).await;
+}
+
 #[cfg(test)]
 mod tests {
-    use chrono::{Utc, DateTime, NaiveDate, NaiveTime, NaiveDateTime};
+    use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 
     use crate::entities::Tweet;
     use crate::repos::MockTweets;
@@ -23,7 +29,7 @@ mod tests {
         Tweet::new(
             id,
             format!("message{}", id),
-            DateTime::from_utc(naive_datetime, Utc)
+            DateTime::from_utc(naive_datetime, Utc),
         )
     }
 

@@ -16,6 +16,14 @@ impl Tweet {
         }
     }
 
+    pub fn create(message: &str) -> Tweet {
+        Tweet {
+            id: None,
+            message: message.to_string(),
+            posted_at: Utc::now(),
+        }
+    }
+
     #[allow(dead_code)]
     pub fn id(&self) -> Option<i32> {
         self.id

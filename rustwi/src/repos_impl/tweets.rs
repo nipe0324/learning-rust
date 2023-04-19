@@ -18,4 +18,14 @@ impl<'a> Tweets for TweetsImpl<'a> {
             .map(|r| Tweet::new(r.get("id"), r.get("message"), r.get("posted_at")))
             .collect()
     }
+
+    async fn store(&self, entity: &Tweet) {
+        let conn = self.pool.get().await.unwrap();
+        conn.execute(
+            "INSERT INTO tweets (message, posted_at) VALUES ($1, $2)",
+            &[&entity.message, &entity.posted_at],
+        )
+        .await
+        .unwrap();
+    }
 }
