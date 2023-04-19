@@ -1,5 +1,5 @@
-use std::net::SocketAddr;
 use dotenvy::dotenv;
+use std::net::SocketAddr;
 
 #[tokio::main] // main関数を非同期関数にするために必要
 async fn main() {

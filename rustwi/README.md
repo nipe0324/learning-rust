@@ -12,6 +12,7 @@
 - [chrono](https://github.com/chronotope/chrono) : Date and time library for Rust
 - [bb8](https://github.com/djc/bb8) : Full-featured async (tokio-based) postgres connection pool (like r2d2)
 - [tokio-postgres](https://github.com/sfackler/rust-postgres) : A native, asynchronous PostgreSQL client.
+- [mockall](https://github.com/asomers/mockall) : A powerful mock object library for Rust
 
 ## Setup
 
