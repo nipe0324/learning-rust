@@ -1,7 +1,10 @@
 use std::net::SocketAddr;
+use dotenvy::dotenv;
 
 #[tokio::main] // main関数を非同期関数にするために必要
 async fn main() {
+    dotenv().expect(".env file not found");
+
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "rustwi=debug")
     }
