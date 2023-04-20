@@ -1,12 +1,13 @@
 use axum::{
     extract::{Extension, Form},
+    http::header::HeaderMap,
     response::{IntoResponse, Redirect},
     routing, Router,
 };
 use serde::Deserialize;
 
 use crate::database::RepoProvider;
-use crate::services;
+use crate::services::{self, SessionToken};
 
 pub fn accounts() -> Router {
     Router::new()
@@ -34,7 +35,11 @@ async fn sign_up(
     )
     .await;
 
-    Redirect::to("/").into_response()
+    let session_token = services::authenticate(&account_repo, &form.email, &form.password).await;
+    match redirect_with_session(session_token) {
+        Ok(response) => response.into_response(), // fixme: it doesn't work
+        Err(response) => response.into_response(),
+    };
 }
 
 #[derive(Deserialize)]
@@ -48,9 +53,19 @@ async fn sign_in(
     form: Form<SignInForm>,
 ) -> impl IntoResponse {
     let account_repo = repo_provider.accounts();
-    let is_signed_in = services::authenticate(&account_repo, &form.email, &form.password).await;
+    let session_token = services::authenticate(&account_repo, &form.email, &form.password).await;
+    redirect_with_session(session_token)
+}
 
-    is_signed_in
-        .then(|| Redirect::to("/").into_response())
-        .ok_or(Redirect::to("/sign_in?error=invalid").into_response())
+fn redirect_with_session(
+    session: Option<SessionToken>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    if let Some(session_token) = session {
+        let mut headers = HeaderMap::new();
+        headers.insert("Set-Cookie", session_token.cookie().parse().unwrap());
+        let response = Redirect::to("/");
+        Ok((headers, response).into_response())
+    } else {
+        Err(Redirect::to("/sign_in?error=invalid").into_response())
+    }
 }

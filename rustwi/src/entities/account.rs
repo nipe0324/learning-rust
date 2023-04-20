@@ -27,12 +27,11 @@ impl Account {
         }
     }
 
-    #[allow(dead_code)]
     pub fn id(&self) -> Option<i32> {
         self.id
     }
 
-    pub fn mathes_password(&self, password: &str) -> bool {
+    pub fn matches_password(&self, password: &str) -> bool {
         self.hashed_password == to_sha256(password)
     }
 }

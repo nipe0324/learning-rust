@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum = "0.6.15"
+axum = { version = "0.6.16", features = ["headers"] }
 tokio = { version = "1.27.0", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
@@ -19,3 +19,5 @@ bb8-postgres = "0.8.1"
 tokio-postgres = { version = "0.7.8", features = ["with-chrono-0_4"] }
 mockall = "0.11.4"
 sha2 = "0.10.6"
+async-session = "3.0.0"
+async-sqlx-session = { version = "0.4.0", features = ["pg", "async_std"] }
