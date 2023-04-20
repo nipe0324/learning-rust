@@ -5,7 +5,7 @@ use bb8_postgres::PostgresConnectionManager;
 use std::env;
 use tokio_postgres::NoTls;
 
-use crate::repos_impl::TweetsImpl;
+use crate::repos_impl::{AccountsImpl, TweetsImpl};
 
 pub type ConnectionPool = Pool<PostgresConnectionManager<NoTls>>;
 
@@ -20,6 +20,10 @@ pub async fn layer() -> Extension<RepoProvider> {
 pub struct RepoProvider(ConnectionPool);
 
 impl RepoProvider {
+    pub fn accounts(&self) -> AccountsImpl {
+        AccountsImpl { pool: &self.0 }
+    }
+
     pub fn tweets(&self) -> TweetsImpl {
         TweetsImpl { pool: &self.0 }
     }

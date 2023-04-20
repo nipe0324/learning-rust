@@ -13,6 +13,7 @@
 - [bb8](https://github.com/djc/bb8) : Full-featured async (tokio-based) postgres connection pool (like r2d2)
 - [tokio-postgres](https://github.com/sfackler/rust-postgres) : A native, asynchronous PostgreSQL client.
 - [mockall](https://github.com/asomers/mockall) : A powerful mock object library for Rust
+- [sha2](https://github.com/DaGenix/rust-crypto) : A (mostly) pure-Rust implementation of various cryptographic algorithms.
 
 ## Setup
 
