@@ -2,7 +2,8 @@
 
 - Rustでは非同期処理を `Future` トレイトとして抽象化し、 `async`/`await`キーワードで実現している
 - Futureは明示的に実行する必要がある
-- Future単体では実行することができないので、別でランタイムを用意する必要がある
+- Future単体では実行することができないので、別でランタイムを用意する必要がある。`tokio`か`async-std`あたり??
+- 非同期処理のユーティリティとして`futures`
 
 - [tokio tutorial](https://tokio.rs/tokio/tutorial)
 - [Rust の Futureについて](https://blog.tiqwab.com/2022/03/26/rust-future.html)
