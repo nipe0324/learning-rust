@@ -49,6 +49,23 @@ impl Future for GreetFuture {
 }
 ```
 
+その他
+
+```rs
+#[tokio::main]
+async fn main() {
+    println!("hello");
+}
+
+# 上記はこんな感じに変換される
+fn main() {
+    let mut rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+        println!("hello");
+    })
+}
+```
+
 ## 非同期処理を並列で実行する`join`
 
 ```rs
