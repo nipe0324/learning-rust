@@ -18,3 +18,23 @@ cargo run --bin server
 # run client
 cargo run --bin client
 ```
+
+## Memo
+
+```rs
+#[tokio::main]
+async fn main() {
+    println!("Hello world");
+}
+
+// 以下のコードと同じ
+fn main() {
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
+            println!("Hello world");
+        })
+}
+```
