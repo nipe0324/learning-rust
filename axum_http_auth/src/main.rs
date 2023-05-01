@@ -277,10 +277,7 @@ async fn main() {
                 .route("/login", get(handle_login).post(handle_create_login))
                 .route("/logout", get(handle_logout))
                 .route("/account", get(handle_account_protected))
-                // .nest_service(
-                //     "/public",
-                //     get_service(ServeDir::new("public")).handle_error(handle_error),
-                // )
+                .nest_service("/public", get_service(ServeDir::new("public")))
                 // Add middleware to all routes
                 .layer(session_layer)
                 .layer(
@@ -434,9 +431,9 @@ async fn handle_account_protected(session: ReadableSession) -> impl IntoResponse
     }
 }
 
-async fn handle_error(_err: io::Error) -> impl IntoResponse {
-    (StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong...")
-}
+// async fn handle_error(_err: io::Error) -> impl IntoResponse {
+//     (StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong...")
+// }
 
 // Utility Functions ////////////////////////////////
 
