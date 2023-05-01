@@ -18,7 +18,7 @@ use bb8::{Pool, PooledConnection};
 use bb8_postgres::PostgresConnectionManager;
 use rand::Rng;
 use serde::{de::DeserializeOwned, Deserialize};
-use std::{io, net::SocketAddr, time::Duration};
+use std::{net::SocketAddr, time::Duration};
 use thiserror::Error;
 use tokio::signal;
 use tokio_postgres::NoTls;
@@ -255,8 +255,9 @@ async fn main() {
                 config.redis_host, config.redis_port,
             ))
             .unwrap();
+            // let store = MemoryStore::new();
             let secret = rand::thread_rng().gen::<[u8; 128]>();
-            let session_layer = SessionLayer::new(store, &secret);
+            let session_layer = SessionLayer::new(store, &secret).with_secure(false); // <- insecure
 
             let connection_string = format!(
                 "host={} port={} user={} password={} dbname={} connect_timeout=10",
