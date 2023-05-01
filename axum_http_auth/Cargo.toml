@@ -1,5 +1,5 @@
 [package]
-name = "axum-http-auth"
+name = "axum_http_auth"
 version = "0.1.0"
 edition = "2021"
 
