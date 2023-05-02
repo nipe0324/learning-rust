@@ -12,7 +12,7 @@ pub(crate) fn router() -> Router<ApiContext> {
     Router::new()
         .route("/api/users", post(create_user))
         .route("/api/users/login", post(login_user))
-        .route("/api/user", get(get_current_user))
+        .route("/api/user", get(get_current_user).put(update_user))
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -31,6 +31,16 @@ struct NewUser {
 struct LoginUser {
     email: String,
     password: String,
+}
+
+#[derive(serde::Deserialize, Default, PartialEq, Eq)]
+#[serde(default)]
+struct UpdateUser {
+    username: Option<String>,
+    email: Option<String>,
+    password: Option<String>,
+    bio: Option<String>,
+    image: Option<String>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -135,11 +145,66 @@ async fn get_current_user(
         user: User {
             username: user.username,
             email: user.email,
-            // refresh token automatically...
-            token: AuthUser {
-                user_id: user.user_id,
+            token: auth_user.to_jwt(&ctx),
+            bio: user.bio,
+            image: user.image,
+        },
+    }))
+}
+
+async fn update_user(
+    auth_user: AuthUser,
+    ctx: State<ApiContext>,
+    Json(req): Json<UserBody<UpdateUser>>,
+) -> Result<Json<UserBody<User>>> {
+    if req.user == UpdateUser::default() {
+        return get_current_user(auth_user, ctx).await;
+    }
+
+    let password_hash = if let Some(password) = req.user.password {
+        Some(hash_password(password).await?)
+    } else {
+        None
+    };
+
+    let user = sqlx::query!(
+        r#"
+            update "user"
+            set username = coalesce($1, "user".username),
+                email = coalesce($2, "user".email),
+                password_hash = coalesce($3, "user".password_hash),
+                bio = coalesce($4, "user".bio),
+                image = coalesce($5, "user".image)
+            where user_id = $6
+            returning email, username, bio, image
+        "#,
+        req.user.username,
+        req.user.email,
+        password_hash,
+        req.user.bio,
+        req.user.image,
+        auth_user.user_id,
+    )
+    .fetch_one(&ctx.db)
+    .await
+    .map_err(|e| match e {
+        sqlx::Error::Database(err) => {
+            if err.constraint() == Some("user_username_key") {
+                Error::unprocessable_entity([("username", "username taken")])
+            } else if err.constraint() == Some("user_email_key") {
+                Error::unprocessable_entity([("email", "email taken")])
+            } else {
+                anyhow::anyhow!("database error").into()
             }
-            .to_jwt(&ctx),
+        }
+        _ => anyhow::anyhow!("something wrong error").into(),
+    })?;
+
+    Ok(Json(UserBody {
+        user: User {
+            username: user.username,
+            email: user.email,
+            token: auth_user.to_jwt(&ctx),
             bio: user.bio,
             image: user.image,
         },
