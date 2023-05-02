@@ -1,5 +1,5 @@
 use anyhow::Context;
-use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
+use argon2::{password_hash::SaltString, Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use axum::extract::Extension;
 use axum::routing::post;
 use axum::{Json, Router};
@@ -9,8 +9,9 @@ use crate::http::extractor::AuthUser;
 use crate::http::{ApiContext, Result};
 
 pub fn router() -> Router {
-    Router::new().route("/api/users", post(create_user))
-    // .route("/api/usres/login", post(login_usre)))
+    Router::new()
+        .route("/api/users", post(create_user))
+        .route("/api/users/login", post(login_user))
     // .route("/api/user", get(get_current_user)))
 }
 
@@ -22,6 +23,12 @@ struct UserBody<T> {
 #[derive(serde::Deserialize)]
 struct NewUser {
     username: String,
+    email: String,
+    password: String,
+}
+
+#[derive(serde::Deserialize)]
+struct LoginUser {
     email: String,
     password: String,
 }
@@ -52,13 +59,19 @@ async fn create_user(
         password_hash,
     )
     .fetch_one(&ctx.db)
-    .await?;
-    // .constraint("user_username_key", |_| {
-    //     Error::unprocessable_entity([("username", "username taken")])
-    // })
-    // .constraint("user_email_key", |_| {
-    //     Error::unprocessable_entity([("email", "email taken")])
-    // })?;
+    .await
+    .map_err(|e| match e {
+        sqlx::Error::Database(err) => {
+            if err.constraint() == Some("user_username_key") {
+                Error::unprocessable_entity([("username", "username taken")])
+            } else if err.constraint() == Some("user_email_key") {
+                Error::unprocessable_entity([("email", "email taken")])
+            } else {
+                anyhow::anyhow!("database error").into()
+            }
+        }
+        _ => anyhow::anyhow!("something wrong error").into(),
+    })?;
 
     Ok(Json(UserBody {
         user: User {
@@ -67,6 +80,38 @@ async fn create_user(
             token: AuthUser { user_id }.to_jwt(&ctx),
             bio: "".to_string(),
             image: None,
+        },
+    }))
+}
+
+async fn login_user(
+    ctx: Extension<ApiContext>,
+    Json(req): Json<UserBody<LoginUser>>,
+) -> Result<Json<UserBody<User>>> {
+    let user = sqlx::query!(
+        r#"
+            select user_id, email, username, bio, image, password_hash
+            from "user"
+            where email = $1
+        "#,
+        req.user.email,
+    )
+    .fetch_optional(&ctx.db)
+    .await?
+    .ok_or(Error::unprocessable_entity([("email", "does not exist")]))?;
+
+    verify_password(req.user.password, user.password_hash).await?;
+
+    Ok(Json(UserBody {
+        user: User {
+            username: user.username,
+            email: user.email,
+            token: AuthUser {
+                user_id: user.user_id,
+            }
+            .to_jwt(&ctx),
+            bio: user.bio,
+            image: user.image,
         },
     }))
 }
@@ -81,4 +126,18 @@ async fn hash_password(password: String) -> Result<String> {
     })
     .await
     .context("panic in geratating password hash")??)
+}
+
+async fn verify_password(password: String, password_hash: String) -> Result<()> {
+    Ok(tokio::task::spawn_blocking(move || -> Result<()> {
+        let parsed_hash = PasswordHash::new(&password_hash)
+            .map_err(|e| anyhow::anyhow!("failed to parse password hash: {}", e))?;
+        Argon2::default()
+            .verify_password(password.as_bytes(), &parsed_hash)
+            .map_err(|_| anyhow::anyhow!("password verification failed"))?;
+
+        Ok(())
+    })
+    .await
+    .context("panic in verifying password")??)
 }
