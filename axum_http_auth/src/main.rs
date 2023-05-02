@@ -257,7 +257,7 @@ async fn main() {
             .unwrap();
             // let store = MemoryStore::new();
             let secret = rand::thread_rng().gen::<[u8; 128]>();
-            let session_layer = SessionLayer::new(store, &secret).with_secure(false); // <- insecure
+            let session_layer = SessionLayer::new(store, &secret);
 
             let connection_string = format!(
                 "host={} port={} user={} password={} dbname={} connect_timeout=10",
