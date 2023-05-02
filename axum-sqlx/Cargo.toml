@@ -7,14 +7,40 @@ edition = "2021"
 
 [dependencies]
 
-# Core dependencies
+# http framework
+axum = { version = "0.6.18", features = ["tower-log"] }
+tower = "0.4.13"
+tower-http = { version = "0.4.0", features = ["trace"] }
 
+# Database client
+# https://github.com/launchbadge/sqlx
 sqlx = { version = "0.6.3", features = ["runtime-tokio-native-tls", "postgres", "uuid", "time"] }
+
+# Async runtime
+# https://docs.rs/tokio/latest/tokio/
 tokio = { version = "1.28.0", features = ["macros", "rt-multi-thread"] }
 
-# Utility Crates
+# Password hashing
+# https://docs.rs/argon2/latest/argon2/
+argon2 = "0.5.0"
+
+# Serialization / Deserialization
+serde = "1.0.160"
+
+# JWT
+jwt = "0.16.0"
+sha2 = "0.10.6"
+hmac = "0.12.1"
+
+# Error
 anyhow = "1.0.71"
+thiserror = "1.0.40"
+
+# Utility Crates
 env_logger = "0.10.0"
 envy = "0.4.2"
-serde = "1.0.160"
 dotenvy = "0.15.7"
+rand = "0.8.5"
+uuid = { version = "1.3.2", features = ["serde"] }
+log = "0.4.17"
+time = "0.3.20"
