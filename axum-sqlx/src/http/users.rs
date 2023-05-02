@@ -1,18 +1,18 @@
 use anyhow::Context;
 use argon2::{password_hash::SaltString, Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
-use axum::extract::Extension;
-use axum::routing::post;
+use axum::extract::State;
+use axum::routing::{get, post};
 use axum::{Json, Router};
 
 use crate::http::error::Error;
 use crate::http::extractor::AuthUser;
 use crate::http::{ApiContext, Result};
 
-pub fn router() -> Router {
+pub(crate) fn router() -> Router<ApiContext> {
     Router::new()
         .route("/api/users", post(create_user))
         .route("/api/users/login", post(login_user))
-    // .route("/api/user", get(get_current_user)))
+        .route("/api/user", get(get_current_user))
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -43,7 +43,7 @@ struct User {
 }
 
 async fn create_user(
-    ctx: Extension<ApiContext>,
+    ctx: State<ApiContext>,
     Json(req): Json<UserBody<NewUser>>,
 ) -> Result<Json<UserBody<User>>> {
     let password_hash = hash_password(req.user.password).await?;
@@ -85,7 +85,7 @@ async fn create_user(
 }
 
 async fn login_user(
-    ctx: Extension<ApiContext>,
+    ctx: State<ApiContext>,
     Json(req): Json<UserBody<LoginUser>>,
 ) -> Result<Json<UserBody<User>>> {
     let user = sqlx::query!(
@@ -106,6 +106,36 @@ async fn login_user(
         user: User {
             username: user.username,
             email: user.email,
+            token: AuthUser {
+                user_id: user.user_id,
+            }
+            .to_jwt(&ctx),
+            bio: user.bio,
+            image: user.image,
+        },
+    }))
+}
+
+async fn get_current_user(
+    auth_user: AuthUser,
+    ctx: State<ApiContext>,
+) -> Result<Json<UserBody<User>>> {
+    let user = sqlx::query!(
+        r#"
+            select user_id, email, username, bio, image
+            from "user"
+            where user_id = $1
+        "#,
+        auth_user.user_id,
+    )
+    .fetch_one(&ctx.db)
+    .await?;
+
+    Ok(Json(UserBody {
+        user: User {
+            username: user.username,
+            email: user.email,
+            // refresh token automatically...
             token: AuthUser {
                 user_id: user.user_id,
             }
