@@ -1,12 +1,11 @@
 use argon2::{self, Config};
-use askama::Template;
 use async_redis_session::RedisSessionStore;
 use axum::{
     async_trait,
     error_handling::HandleErrorLayer,
-    extract::{rejection::FormRejection, Form, FromRef, FromRequest, FromRequestParts, State},
-    http::{request::Parts, Request, StatusCode},
-    response::{Html, IntoResponse, Redirect, Response},
+    extract::{FromRef, FromRequestParts, State},
+    http::{request::Parts, StatusCode},
+    response::{IntoResponse, Redirect},
     routing::{get, get_service},
     Router,
 };
@@ -17,9 +16,8 @@ use axum_sessions::{
 use bb8::{Pool, PooledConnection};
 use bb8_postgres::PostgresConnectionManager;
 use rand::Rng;
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::Deserialize;
 use std::{net::SocketAddr, time::Duration};
-use thiserror::Error;
 use tokio::signal;
 use tokio_postgres::NoTls;
 use tower::{BoxError, ServiceBuilder};
@@ -29,6 +27,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use validator::Validate;
 
 use axum_http_auth::config::AppConfig;
+use axum_http_auth::views::*;
 
 // Types /////////////////////////////
 
@@ -37,8 +36,6 @@ type ConnectionPool = Pool<PostgresConnectionManager<NoTls>>;
 // Structs //////////////////////////
 
 struct DatabaseConnection(PooledConnection<'static, PostgresConnectionManager<NoTls>>);
-
-struct HtmlTemplate<T>(T);
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateSignupInput {
@@ -59,78 +56,7 @@ pub struct CreateLoginInput {
     pub password: String,
 }
 
-// Templates //
-
-#[derive(Template)]
-#[template(path = "account.html")]
-struct AccountTemplate {
-    title: String,
-    email: String,
-}
-
-#[derive(Template)]
-#[template(path = "index.html")]
-struct IndexTemplate {
-    title: String,
-}
-
-#[derive(Template)]
-#[template(path = "login.html")]
-struct LoginTemplate {
-    title: String,
-    errors: validator::ValidationErrors,
-}
-
-#[derive(Template)]
-#[template(path = "signup.html")]
-struct SignupTemplate {
-    title: String,
-    errors: validator::ValidationErrors,
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ValidatedSignupForm<T>(pub T);
-
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ValidatedLoginForm<T>(pub T);
-
-// enums ////////////////////////////////////
-
-#[derive(Debug, Error)]
-pub enum SignupFormError {
-    #[error(transparent)]
-    ValidationError(#[from] validator::ValidationErrors),
-
-    #[error(transparent)]
-    AxumFormRejection(#[from] FormRejection),
-}
-
-#[derive(Debug, Error)]
-pub enum LoginFormError {
-    #[error(transparent)]
-    ValidationError(#[from] validator::ValidationErrors),
-
-    #[error(transparent)]
-    AxumFormRejection(#[from] FormRejection),
-}
-
 // Traits ///////////////////////////////////////////
-
-impl<T> IntoResponse for HtmlTemplate<T>
-where
-    T: Template,
-{
-    fn into_response(self) -> Response {
-        match self.0.render() {
-            Ok(html) => Html(html).into_response(),
-            Err(err) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to render template. Error: {}", err),
-            )
-                .into_response(),
-        }
-    }
-}
 
 #[async_trait]
 impl<S> FromRequestParts<S> for DatabaseConnection
@@ -146,86 +72,6 @@ where
         let conn = pool.get_owned().await.map_err(internal_error)?;
         tracing::debug!("{:#?}", conn);
         Ok(Self(conn))
-    }
-}
-
-#[async_trait]
-impl<T, S, B> FromRequest<S, B> for ValidatedSignupForm<T>
-where
-    T: DeserializeOwned + Validate,
-    S: Send + Sync,
-    Form<T>: FromRequest<S, B, Rejection = FormRejection>,
-    B: Send + 'static,
-{
-    type Rejection = SignupFormError;
-
-    async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        let Form(value) = Form::<T>::from_request(req, state).await?;
-        value.validate()?;
-        Ok(ValidatedSignupForm(value))
-    }
-}
-
-#[async_trait]
-impl<T, S, B> FromRequest<S, B> for ValidatedLoginForm<T>
-where
-    T: DeserializeOwned + Validate,
-    S: Send + Sync,
-    Form<T>: FromRequest<S, B, Rejection = FormRejection>,
-    B: Send + 'static,
-{
-    type Rejection = LoginFormError;
-
-    async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        let Form(value) = Form::<T>::from_request(req, state).await?;
-        value.validate()?;
-        Ok(ValidatedLoginForm(value))
-    }
-}
-
-impl IntoResponse for SignupFormError {
-    fn into_response(self) -> Response {
-        match self {
-            SignupFormError::ValidationError(v) => {
-                let template = SignupTemplate {
-                    title: "App - Signup|Error".to_string(),
-                    errors: v,
-                };
-                (StatusCode::BAD_REQUEST, HtmlTemplate(template))
-            }
-            SignupFormError::AxumFormRejection(_) => {
-                let empty_errors = validator::ValidationErrors::new();
-                let template = SignupTemplate {
-                    title: "App - Signup|Error".to_string(),
-                    errors: empty_errors,
-                };
-                (StatusCode::BAD_REQUEST, HtmlTemplate(template))
-            }
-        }
-        .into_response()
-    }
-}
-
-impl IntoResponse for LoginFormError {
-    fn into_response(self) -> Response {
-        match self {
-            LoginFormError::ValidationError(v) => {
-                let template = LoginTemplate {
-                    title: "App - Login|Error".to_string(),
-                    errors: v,
-                };
-                (StatusCode::BAD_REQUEST, HtmlTemplate(template))
-            }
-            LoginFormError::AxumFormRejection(_) => {
-                let empty_errors = validator::ValidationErrors::new();
-                let template = LoginTemplate {
-                    title: "App - Login|Error".to_string(),
-                    errors: empty_errors,
-                };
-                (StatusCode::BAD_REQUEST, HtmlTemplate(template))
-            }
-        }
-        .into_response()
     }
 }
 
