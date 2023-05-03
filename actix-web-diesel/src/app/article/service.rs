@@ -1,4 +1,4 @@
-use crate::app::article::model::Article;
+use crate::app::article::model::{Article, CreateArticle};
 // use crate::app::favorite::model::{Favorite, FavoriteInfo};
 // use crate::app::follow::model::Follow;
 use crate::app::profile::model::Profile;
@@ -8,6 +8,7 @@ use crate::app::user::model::User;
 use crate::error::AppError;
 // use crate::schema::articles::dsl::*;
 use crate::schema::{articles, users};
+use actix_web::App;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 // use uuid::Uuid;
@@ -87,4 +88,40 @@ pub fn fetch_articles_list(
         .collect::<Vec<_>>();
 
     Ok((articles_list, articles_count))
+}
+
+pub struct CreateArticleService {
+    pub slug: String,
+    pub title: String,
+    pub description: String,
+    pub body: String,
+    // pub tag_name_list: Option<Vec<String>>,
+    pub current_user: User,
+}
+
+// Create an article
+pub fn create_article(
+    conn: &mut PgConnection,
+    params: &CreateArticleService,
+) -> Result<(Article, Profile), AppError> {
+    let article = Article::create(
+        conn,
+        &CreateArticle {
+            author_id: params.current_user.id,
+            slug: params.slug.clone(),
+            title: params.title.clone(),
+            description: params.description.clone(),
+            body: params.body.clone(),
+        },
+    )?;
+
+    // TODO
+    // let tag_list = create_tag_list(...)
+
+    let profile = params.current_user.get_profile(conn, &article.author_id)?;
+
+    // TODO
+    // let favorite_info
+
+    Ok((article, profile))
 }

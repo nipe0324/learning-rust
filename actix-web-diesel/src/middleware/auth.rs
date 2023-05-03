@@ -161,7 +161,7 @@ fn get_user_id_from_header(req: &ServiceRequest) -> Result<Uuid, &str> {
                 Err("Invalid token convention")
             }
         })
-        .map(|auth_str| auth_str[(TOKEN_IDENTIFIER.len() + 1)..auth_str.len()].trim())
+        .map(|auth_str| auth_str[TOKEN_IDENTIFIER.len()..auth_str.len()].trim())
         .and_then(|token_str| token::decode(token_str).map_err(|_| "Cannot decode token"))
         .map(|token| token.claims.user_id)
 }

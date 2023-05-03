@@ -96,4 +96,11 @@ articles
 curl -X GET \
     -H "Content-Type: application/json" \
     http://localhost:8080/api/articles
+
+# create article
+curl -X POST
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"article":{"title":"first article", "description":"this is description", "body":"body"}}' \
+    http://localhost:8080/api/articles
 ```
