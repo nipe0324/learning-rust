@@ -83,11 +83,11 @@ impl AuthUser {
     }
 }
 
-// impl MaybeAuthUser {
-//     pub fn user_id(&self) -> Option<Uuid> {
-//         self.0.as_ref().map(|auth_user| auth_user.user_id)
-//     }
-// }
+impl MaybeAuthUser {
+    pub fn user_id(&self) -> Option<Uuid> {
+        self.0.as_ref().map(|auth_user| auth_user.user_id)
+    }
+}
 
 #[async_trait]
 impl<S> FromRequestParts<S> for AuthUser

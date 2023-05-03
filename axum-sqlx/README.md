@@ -7,43 +7,53 @@
 
 start postgres server
 
-```
+```sh
 docker compose up -d
 
+# psql
 docker compose exec postgres psql -U postgres axum_sqlx
 ```
 
 run server
 
-```
+```sh
 cargo run
 ```
 
 requests users
 
-```
--- create user
+```sh
+# create user
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"user":{"username":"john_doe","email":"john@example.com","password":"password123"}}' \
-    http://localhost:8000/api/users
+    http://localhost:8080/api/users
 
--- login user
+# login user
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"user":{"email":"john@example.com","password":"password123"}}' \
     http://localhost:8080/api/users/login
 
--- get current user
+# get current user
 curl -X GET \
     -H "Content-Type: application/json" \
     -H "Authorization: Token your_token_here" \
     http://localhost:8080/api/user
 
--- update current user
+# update current user
 curl -X PUT \
     -H "Content-Type: application/json" \
     -H "Authorization: Token your_token_here" \
     -d '{"user":{"bio":"hello"}}' \
     http://localhost:8080/api/user
+```
+
+requests profiles
+
+```sh
+# get user profile
+curl -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8080/api/profiles/john_doe
 ```

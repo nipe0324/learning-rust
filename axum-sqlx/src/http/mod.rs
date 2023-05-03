@@ -12,7 +12,7 @@ mod extractor;
 
 mod users;
 // mod articles;
-// mod profiles;
+mod profiles;
 
 pub use error::Error;
 
@@ -41,7 +41,7 @@ pub async fn serve(config: Config, db: PgPool) -> anyhow::Result<()> {
 fn api_router(api_context: ApiContext) -> Router {
     Router::new()
         .merge(users::router())
-        // .merge(profiles::router())
+        .merge(profiles::router())
         // .merge(articles::router())
         .layer(TraceLayer::new_for_http())
         .with_state(api_context)
