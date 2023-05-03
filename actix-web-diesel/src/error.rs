@@ -1,6 +1,6 @@
 use diesel::r2d2::{Error as R2D2Error, PoolError};
-use thiserror::Error;
 use serde_json::Value as JsonValue;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AppError {

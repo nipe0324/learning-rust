@@ -6,11 +6,11 @@ extern crate log;
 
 use actix_web::{middleware::Logger, App, HttpServer};
 
-// mod app;
+mod app;
 mod constants;
 mod error;
 mod middleware;
-// mod routes;
+mod routes;
 // mod schema;
 mod utils;
 
@@ -25,5 +25,15 @@ async fn main() -> std::io::Result<()> {
         middleware::state::AppState { pool }
     };
 
-    Ok(())
+    HttpServer::new(move || {
+        App::new()
+            .wrap(Logger::default())
+            .app_data(actix_web::web::Data::new(state.clone()))
+            // .wrap(middleware::cors::cors())
+            // .wrap(middleware::auth::Authentication)
+            .configure(routes::api)
+    })
+    .bind(constants::BIND_ADDRESS)?
+    .run()
+    .await
 }
