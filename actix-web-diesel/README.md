@@ -25,7 +25,7 @@ cargo install diesel_cli
 diesel setup
 
 # migration commands
-# diesel migration generate create_xxx
+# diesel migration generate create_users
 # diesel migration run
 # diesel migration redo
 ```
