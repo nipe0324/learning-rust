@@ -66,3 +66,13 @@ curl -X PUT \
     -d '{"user":{"bio":"hi"}}' \
     http://localhost:8080/api/user
 ```
+
+profiles
+
+```sh
+# get profile
+curl -X GET \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    http://localhost:8080/api/profiles/john_doe
+```

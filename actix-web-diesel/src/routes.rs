@@ -1,4 +1,4 @@
-use crate::app::{healthcheck, user};
+use crate::app::{healthcheck, profile, user};
 use actix_web::web::{get, post, put, scope, ServiceConfig};
 
 pub fn api(cfg: &mut ServiceConfig) {
@@ -8,6 +8,7 @@ pub fn api(cfg: &mut ServiceConfig) {
             .route("/users/login", post().to(user::api::signin))
             .route("/users", post().to(user::api::signup))
             .route("/user", get().to(user::api::get_user))
-            .route("/user", put().to(user::api::update_user)),
+            .route("/user", put().to(user::api::update_user))
+            .route("/profiles/{username}", get().to(profile::api::get_profile)),
     );
 }
