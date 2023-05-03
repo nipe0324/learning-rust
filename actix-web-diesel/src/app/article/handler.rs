@@ -1,5 +1,5 @@
 use super::model::Article;
-use super::request::{ArticlesListQueryParameter, CreateArticleRequest};
+use super::request::{ArticlesListQueryParameter, CreateArticleRequest, FeedQueryParameter};
 use super::response::{MultipleArticlesResponse, SingleArticleResponse};
 use super::service;
 use crate::middleware::auth;
@@ -23,6 +23,29 @@ pub async fn get_articles(
             tag: params.tag.clone(),
             author: params.author.clone(),
             favorited: params.favorited.clone(),
+            offset,
+            limit,
+        },
+    )?;
+
+    let res = MultipleArticlesResponse::from((articles_list, articles_count));
+    Ok(HttpResponse::Ok().json(res))
+}
+
+pub async fn get_articles_feed(
+    state: web::Data<AppState>,
+    req: HttpRequest,
+    params: web::Query<FeedQueryParameter>,
+) -> ApiResponse {
+    let conn = &mut state.conn()?;
+    let current_user = auth::get_current_user(&req)?;
+    let offset = std::cmp::min(params.offset.to_owned().unwrap_or(0), 100);
+    let limit = params.limit.unwrap_or(20);
+
+    let (articles_list, articles_count) = service::fetch_following_articles(
+        conn,
+        service::FetchFollowingArticlesService {
+            current_user,
             offset,
             limit,
         },

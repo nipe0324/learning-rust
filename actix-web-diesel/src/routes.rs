@@ -1,4 +1,4 @@
-use crate::app::article::handler::{create_article, get_articles};
+use crate::app::article::handler::{create_article, get_articles, get_articles_feed};
 use crate::app::follow::handler::{create_follow, delete_follow};
 use crate::app::healthcheck::handler::get_healthcheck;
 use crate::app::profile::handler::get_profile;
@@ -17,7 +17,7 @@ pub fn api(cfg: &mut ServiceConfig) {
             .route("/profiles/{username}/follow", post().to(create_follow))
             .route("/profiles/{username}/follow", delete().to(delete_follow))
             .route("/articles", get().to(get_articles))
-            .route("/articles", post().to(create_article)),
-        // .route("/articles/feed", get().to(get_articles_feed)),
+            .route("/articles", post().to(create_article))
+            .route("/articles/feed", get().to(get_articles_feed)),
     );
 }

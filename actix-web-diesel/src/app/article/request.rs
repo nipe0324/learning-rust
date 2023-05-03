@@ -11,6 +11,12 @@ pub struct ArticlesListQueryParameter {
     pub offset: Option<i64>,
 }
 
+#[derive(Deserialize)]
+pub struct FeedQueryParameter {
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct CreateArticleRequest {
     pub article: CreateArticleInner,

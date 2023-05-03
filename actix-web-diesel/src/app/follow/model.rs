@@ -19,6 +19,17 @@ pub struct Follow {
 }
 
 impl Follow {
+    pub fn find_folowee_ids_by_follower_id(
+        conn: &mut PgConnection,
+        follower_id: &Uuid,
+    ) -> Result<Vec<Uuid>, AppError> {
+        let ids = follows::table
+            .filter(follows::follower_id.eq(follower_id))
+            .select(follows::followee_id)
+            .get_results::<Uuid>(conn)?;
+        Ok(ids)
+    }
+
     /// Follow a user
     pub fn follow(
         conn: &mut PgConnection,
