@@ -56,4 +56,16 @@ requests profiles
 curl -X GET \
     -H "Content-Type: application/json" \
     http://localhost:8080/api/profiles/john_doe
+
+# follow
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token your_token_here" \
+    http://localhost:8080/api/profiles/tom/follow
+
+# unfollow
+curl -X DELETE \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token your_token_here" \
+    http://localhost:8080/api/profiles/tom/follow
 ```
