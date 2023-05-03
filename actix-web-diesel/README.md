@@ -88,3 +88,12 @@ curl -X DELETE \
     -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/profiles/tom/follow
 ```
+
+articles
+
+```sh
+# get articles
+curl -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8080/api/articles
+```

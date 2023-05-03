@@ -1,7 +1,6 @@
 use crate::app::follow::model::Follow;
 use crate::app::user::model::User;
 use crate::error::AppError;
-use crate::schema::follows;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};

@@ -1,3 +1,4 @@
+pub mod article;
 pub mod follow;
 pub mod healthcheck;
 pub mod profile;

@@ -63,7 +63,6 @@ impl Follow {
 
     /// Check if a user is following another user
     pub fn is_following(conn: &mut PgConnection, follower_id: &Uuid, followee_id: &Uuid) -> bool {
-        use crate::schema::follows;
         let follow = follows::table
             .filter(follows::follower_id.eq(follower_id))
             .filter(follows::followee_id.eq(followee_id))
