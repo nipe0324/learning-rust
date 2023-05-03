@@ -26,6 +26,13 @@ pub struct ListArticlesQuery {
     offset: Option<i64>,
 }
 
+#[derive(serde::Deserialize, Default)]
+#[serde(default)]
+pub struct FeedArticleQuery {
+    limit: Option<i64>,
+    offset: Option<i64>,
+}
+
 pub(in crate::http) async fn list_articles(
     maybe_auth_user: MaybeAuthUser,
     ctx: State<ApiContext>,
@@ -82,6 +89,53 @@ pub(in crate::http) async fn list_articles(
 
     Ok(Json(MultipleArticlesBody {
         // This is probably increcct.
+        articles_count: articles.len(),
+        articles,
+    }))
+}
+
+pub(in crate::http) async fn feed_articles(
+    auth_user: AuthUser,
+    ctx: State<ApiContext>,
+    query: Query<FeedArticleQuery>,
+) -> Result<Json<MultipleArticlesBody>> {
+    let articles: Vec<_> = sqlx::query_as!(
+        ArticleFromQuery,
+        r#"
+            select
+                slug,
+                title,
+                description,
+                body,
+                tag_list,
+                article.created_at "created_at: Timestamptz",
+                article.updated_at "updated_at: Timestamptz",
+                exists(select 1 from article_favorite where user_id = $1) "favorited!",
+                coalesce(
+                    (select count(*) from article_favorite fav where fav.article_id = article.article_id),
+                    0
+                ) "favorites_count!",
+                author.username author_username,
+                author.bio author_bio,
+                author.image author_image,
+                true "following_author!"
+            from follow
+            inner join article on followed_user_id = article.user_id
+            inner join "user" author using (user_id)
+            where following_user_id = $1
+            limit $2
+            offset $3
+        "#,
+        auth_user.user_id,
+        query.limit.unwrap_or(20),
+        query.offset.unwrap_or(0),
+    )
+    .fetch(&ctx.db)
+    .map_ok(ArticleFromQuery::into_article)
+    .try_collect()
+    .await?;
+
+    Ok(Json(MultipleArticlesBody {
         articles_count: articles.len(),
         articles,
     }))

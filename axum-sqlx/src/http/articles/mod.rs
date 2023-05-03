@@ -15,10 +15,12 @@ use crate::http::{ApiContext, Result};
 mod listing;
 
 pub(crate) fn router() -> Router<ApiContext> {
-    Router::new().route(
-        "/api/articles",
-        post(create_article).get(listing::list_articles),
-    )
+    Router::new()
+        .route(
+            "/api/articles",
+            post(create_article).get(listing::list_articles),
+        )
+        .route("/api/articles/feed", get(listing::feed_articles))
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]

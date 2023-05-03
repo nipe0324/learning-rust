@@ -84,4 +84,10 @@ curl -X POST \
 curl -X GET \
     -H "Content-Type: application/json" \
     http://localhost:8080/api/articles
+
+# feed articles
+curl -X GET \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    http://localhost:8080/api/articles/feed
 ```
