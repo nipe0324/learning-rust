@@ -1,24 +1,19 @@
-use crate::app::{healthcheck, profile, user};
-use actix_web::web::{get, post, put, scope, ServiceConfig};
+use crate::app::follow::handler::{create_follow, delete_follow};
+use crate::app::healthcheck::handler::get_healthcheck;
+use crate::app::profile::handler::get_profile;
+use crate::app::user::handler::{get_user, signin, signup, update_user};
+use actix_web::web::{delete, get, post, put, scope, ServiceConfig};
 
 pub fn api(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/api")
-            .route("/healthcheck", get().to(healthcheck::handler::index))
-            .route("/users/login", post().to(user::handler::signin))
-            .route("/users", post().to(user::handler::signup))
-            .route("/user", get().to(user::handler::get_user))
-            .route("/user", put().to(user::handler::update_user))
-            .route(
-                "/profiles/{username}",
-                get().to(profile::handler::get_profile),
-            ), // .route(
-               //     "/profiles/{username}/follow",
-               //     post().to(follow::handler::create_follow),
-               // )
-               // .route(
-               //     "/profiles/{username}/follow",
-               //     delete().to(follow::handler::delete_follow),
-               // ),
+            .route("/healthcheck", get().to(get_healthcheck))
+            .route("/users/login", post().to(signin))
+            .route("/users", post().to(signup))
+            .route("/user", get().to(get_user))
+            .route("/user", put().to(update_user))
+            .route("/profiles/{username}", get().to(get_profile))
+            .route("/profiles/{username}/follow", post().to(create_follow))
+            .route("/profiles/{username}/follow", delete().to(delete_follow)),
     );
 }

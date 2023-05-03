@@ -4,7 +4,7 @@ use crate::middleware::{auth, state::AppState};
 use crate::utils::handler::ApiResponse;
 use actix_web::{web, HttpRequest, HttpResponse};
 
-type UsernameSlug = String;
+pub type UsernameSlug = String;
 
 pub async fn get_profile(
     state: web::Data<AppState>,
