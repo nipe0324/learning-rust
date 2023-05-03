@@ -2,6 +2,7 @@ use axum::http::header::WWW_AUTHENTICATE;
 use axum::http::{HeaderMap, HeaderValue, StatusCode};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
+use sqlx::error::DatabaseError;
 // use sqlx::error::DatabaseError;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -98,5 +99,44 @@ impl IntoResponse for Error {
         }
 
         (self.status_code(), self.to_string()).into_response()
+    }
+}
+
+/// A little helper trait for more easily converting database constraint errors into API errors.
+///
+/// ```rust,ignore
+/// let user_id = sqlx::query_scalar!(
+///         r#"insert into "user" (username, email, password_hash) values ($1, $2, $3) returning user_id"#,
+///         username,
+///         email,
+///         password_hash,
+///     )
+///     .fetch_one(&ctx.db)
+///     .await
+///     .on_constraint("user_username_key", |_| Error::unprocessable_entity([("username", "already taken")]))?;
+/// ```
+pub trait ResultExt<T> {
+    fn on_constraint(
+        self,
+        name: &str,
+        f: impl FnOnce(Box<dyn DatabaseError>) -> Error,
+    ) -> Result<T, Error>;
+}
+
+impl<T, E> ResultExt<T> for Result<T, E>
+where
+    E: Into<Error>,
+{
+    fn on_constraint(
+        self,
+        name: &str,
+        map_err: impl FnOnce(Box<dyn DatabaseError>) -> Error,
+    ) -> Result<T, Error> {
+        self.map_err(|e| match e.into() {
+            Error::Sqlx(sqlx::Error::Database(dbe)) if dbe.constraint() == Some(name) => {
+                map_err(dbe)
+            }
+            e => e,
+        })
     }
 }

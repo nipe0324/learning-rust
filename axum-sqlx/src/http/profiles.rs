@@ -2,7 +2,7 @@ use axum::extract::{Path, State};
 use axum::routing::{get, post};
 use axum::{Json, Router};
 
-// use crate::http::error::ResultExt;
+use crate::http::error::ResultExt;
 use crate::http::extractor::{AuthUser, MaybeAuthUser};
 use crate::http::ApiContext;
 use crate::http::{Error, Result};
@@ -82,16 +82,7 @@ async fn follow_user(
     )
     .execute(&mut tx)
     .await
-    .map_err(|e| match e {
-        sqlx::Error::Database(err) => {
-            if err.constraint() == Some("user_cannnot_follow_self") {
-                Error::Forbidden
-            } else {
-                anyhow::anyhow!("database error").into()
-            }
-        }
-        _ => anyhow::anyhow!("something wrong error").into(),
-    })?;
+    .on_constraint("user_cannot_follow_self", |_| Error::Forbidden)?;
 
     tx.commit().await?;
 

@@ -8,6 +8,8 @@ use crate::http::error::Error;
 use crate::http::extractor::AuthUser;
 use crate::http::{ApiContext, Result};
 
+use super::error::ResultExt;
+
 pub(crate) fn router() -> Router<ApiContext> {
     Router::new()
         .route("/api/users", post(create_user))
@@ -70,17 +72,11 @@ async fn create_user(
     )
     .fetch_one(&ctx.db)
     .await
-    .map_err(|e| match e {
-        sqlx::Error::Database(err) => {
-            if err.constraint() == Some("user_username_key") {
-                Error::unprocessable_entity([("username", "username taken")])
-            } else if err.constraint() == Some("user_email_key") {
-                Error::unprocessable_entity([("email", "email taken")])
-            } else {
-                anyhow::anyhow!("database error").into()
-            }
-        }
-        _ => anyhow::anyhow!("something wrong error").into(),
+    .on_constraint("user_username_key", |_| {
+        Error::unprocessable_entity([("username", "username taken")])
+    })
+    .on_constraint("user_email_key", |_| {
+        Error::unprocessable_entity([("email", "email taken")])
     })?;
 
     Ok(Json(UserBody {
@@ -187,17 +183,11 @@ async fn update_user(
     )
     .fetch_one(&ctx.db)
     .await
-    .map_err(|e| match e {
-        sqlx::Error::Database(err) => {
-            if err.constraint() == Some("user_username_key") {
-                Error::unprocessable_entity([("username", "username taken")])
-            } else if err.constraint() == Some("user_email_key") {
-                Error::unprocessable_entity([("email", "email taken")])
-            } else {
-                anyhow::anyhow!("database error").into()
-            }
-        }
-        _ => anyhow::anyhow!("something wrong error").into(),
+    .on_constraint("user_username_key", |_| {
+        Error::unprocessable_entity([("username", "username taken")])
+    })
+    .on_constraint("user_email_key", |_| {
+        Error::unprocessable_entity([("email", "email taken")])
     })?;
 
     Ok(Json(UserBody {
