@@ -5,7 +5,7 @@ pub fn api(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/api")
             .route("/healthcheck", get().to(healthcheck::api::index))
-            // .route("/users/login", post().to(users::api::signin))
+            .route("/users/login", post().to(user::api::signin))
             .route("/users", post().to(user::api::signup)),
     );
 }

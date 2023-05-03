@@ -15,7 +15,7 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub email: String,
-    pub password: String,
+    pub password_hash: String,
     pub bio: Option<String>,
     pub image: Option<String>,
     pub created_at: NaiveDateTime,
@@ -23,6 +23,21 @@ pub struct User {
 }
 
 impl User {
+    pub fn signin(
+        conn: &mut PgConnection,
+        email: &str,
+        password: &str,
+    ) -> Result<(User, Token), AppError> {
+        let user = users::table
+            .filter(users::email.eq(email))
+            .limit(1)
+            .first::<User>(conn)?;
+
+        hasher::verify(password, &user.password_hash)?;
+        let token = user.generate_token()?;
+        Ok((user, token))
+    }
+
     pub fn signup<'a>(
         conn: &mut PgConnection,
         username: &'a str,
@@ -30,19 +45,15 @@ impl User {
         password: &'a str,
     ) -> Result<(User, Token), AppError> {
         let password_hash = hasher::hash_password(password)?;
-
-        let record = SignupUser {
-            username,
-            email,
-            password_hash: &password_hash,
-        };
-
         let user = diesel::insert_into(users::table)
-            .values(&record)
+            .values(&SignupUser {
+                username,
+                email,
+                password_hash: &password_hash,
+            })
             .get_result::<User>(conn)?;
 
         let token = user.generate_token()?;
-
         Ok((user, token))
     }
 
