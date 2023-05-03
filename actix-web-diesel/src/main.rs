@@ -1,7 +1,4 @@
-#[macro_use]
 extern crate diesel;
-
-#[macro_use]
 extern crate log;
 
 use actix_web::{middleware::Logger, App, HttpServer};
@@ -29,7 +26,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .app_data(actix_web::web::Data::new(state.clone()))
-            // .wrap(middleware::cors::cors())
+            .wrap(middleware::cors::cors())
             // .wrap(middleware::auth::Authentication)
             .configure(routes::api)
     })
