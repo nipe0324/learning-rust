@@ -1,9 +1,11 @@
-use crate::app;
-use actix_web::web::{self, get};
+use crate::app::{healthcheck, user};
+use actix_web::web::{get, post, scope, ServiceConfig};
 
-pub fn api(cfg: &mut web::ServiceConfig) {
+pub fn api(cfg: &mut ServiceConfig) {
     cfg.service(
-        web::scope("/api")
-            .service(web::scope("/healthcheck").route("", get().to(app::healthcheck::api::index))),
+        scope("/api")
+            .route("/healthcheck", get().to(healthcheck::api::index))
+            // .route("/users/login", post().to(users::api::signin))
+            .route("/users", post().to(user::api::signup)),
     );
 }

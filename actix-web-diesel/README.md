@@ -35,3 +35,21 @@ run server
 ```
 cargo run
 ```
+
+## Requests
+
+users
+
+```sh
+# create user
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"user":{"username":"john_doe","email":"john@example.com","password":"password123"}}' \
+    http://localhost:8080/api/users
+
+# login user
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"user":{"email":"john@example.com","password":"password123"}}' \
+    http://localhost:8080/api/users/login
+```

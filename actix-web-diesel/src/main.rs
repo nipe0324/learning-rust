@@ -8,7 +8,7 @@ mod constants;
 mod error;
 mod middleware;
 mod routes;
-// mod schema;
+mod schema;
 mod utils;
 
 #[actix_web::main]
