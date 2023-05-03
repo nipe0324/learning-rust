@@ -1,7 +1,7 @@
 use super::response::ProfileResponse;
 use crate::app::user::model::User;
 use crate::middleware::{auth, state::AppState};
-use crate::utils::api::ApiResponse;
+use crate::utils::handler::ApiResponse;
 use actix_web::{web, HttpRequest, HttpResponse};
 
 type UsernameSlug = String;

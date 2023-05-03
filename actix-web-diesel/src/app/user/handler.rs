@@ -2,7 +2,7 @@ use super::model::User;
 use super::{request, response::UserResponse};
 use crate::middleware::auth;
 use crate::middleware::state::AppState;
-use crate::utils::api::ApiResponse;
+use crate::utils::handler::ApiResponse;
 use actix_web::{web, HttpRequest, HttpResponse};
 
 pub async fn signin(
