@@ -38,13 +38,13 @@ curl -X POST \
 # get current user
 curl -X GET \
     -H "Content-Type: application/json" \
-    -H "Authorization: Token your_token_here" \
+    -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/user
 
 # update current user
 curl -X PUT \
     -H "Content-Type: application/json" \
-    -H "Authorization: Token your_token_here" \
+    -H "Authorization: Token $YOUR_TOKEN" \
     -d '{"user":{"bio":"hello"}}' \
     http://localhost:8080/api/user
 ```
@@ -60,12 +60,23 @@ curl -X GET \
 # follow
 curl -X POST \
     -H "Content-Type: application/json" \
-    -H "Authorization: Token your_token_here" \
+    -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/profiles/tom/follow
 
 # unfollow
 curl -X DELETE \
     -H "Content-Type: application/json" \
-    -H "Authorization: Token your_token_here" \
+    -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/profiles/tom/follow
+```
+
+requests articles
+
+```sh
+# create article
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"article":{"title":"my first article","description":"this is description.","body":"body","tagList":["tag1","tag2"]}}' \
+    http://localhost:8080/api/articles
 ```

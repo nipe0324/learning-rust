@@ -8,11 +8,11 @@ use crate::config::Config;
 
 mod error;
 mod extractor;
-// mod types;
+mod types;
 
-mod users;
-// mod articles;
+mod articles;
 mod profiles;
+mod users;
 
 pub use error::Error;
 
@@ -42,7 +42,7 @@ fn api_router(api_context: ApiContext) -> Router {
     Router::new()
         .merge(users::router())
         .merge(profiles::router())
-        // .merge(articles::router())
+        .merge(articles::router())
         .layer(TraceLayer::new_for_http())
         .with_state(api_context)
 }
