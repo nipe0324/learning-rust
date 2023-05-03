@@ -11,13 +11,13 @@ pub fn encode(user_id: Uuid, now: i64) -> Result<String, Error> {
     jsonwebtoken::encode(&Header::default(), &claims, &EncodingKey::from_secret(&KEY))
 }
 
-// pub fn decode(token: &str) -> jsonwebtoken::errors::Result<TokenData<Claims>> {
-//     jsonwebtoken::decode::<Claims>(
-//         token,
-//         &DecodingKey::from_secret(&KEY),
-//         &Validation::default(),
-//     )
-// }
+pub fn decode(token: &str) -> jsonwebtoken::errors::Result<TokenData<Claims>> {
+    jsonwebtoken::decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(&KEY),
+        &Validation::default(),
+    )
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {

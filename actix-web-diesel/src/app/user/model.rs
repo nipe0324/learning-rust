@@ -23,7 +23,14 @@ pub struct User {
 }
 
 impl User {
-    pub fn signin(
+    /// Find a user by user_id
+    pub fn find(conn: &mut PgConnection, user_id: Uuid) -> Result<User, AppError> {
+        let user = users::table.find(user_id).first::<User>(conn)?;
+        Ok(user)
+    }
+
+    /// Authenticate a user
+    pub fn authenticate(
         conn: &mut PgConnection,
         email: &str,
         password: &str,
@@ -38,7 +45,8 @@ impl User {
         Ok((user, token))
     }
 
-    pub fn signup<'a>(
+    /// Create a new user
+    pub fn create<'a>(
         conn: &mut PgConnection,
         username: &'a str,
         email: &'a str,
@@ -57,7 +65,35 @@ impl User {
         Ok((user, token))
     }
 
-    fn generate_token(&self) -> Result<String, AppError> {
+    /// Update a user
+    pub fn update(
+        conn: &mut PgConnection,
+        user_id: Uuid,
+        username: Option<String>,
+        email: Option<String>,
+        password: Option<String>,
+        image: Option<String>,
+        bio: Option<String>,
+    ) -> Result<User, AppError> {
+        let password_hash = match password {
+            Some(ref password) => Some(hasher::hash_password(password)?),
+            None => None,
+        };
+
+        let target_user = users::table.filter(users::id.eq(user_id));
+        let user = diesel::update(target_user)
+            .set(&UpdateUser {
+                username,
+                email,
+                password_hash,
+                image,
+                bio,
+            })
+            .get_result::<User>(conn)?;
+        Ok(user)
+    }
+
+    pub fn generate_token(&self) -> Result<String, AppError> {
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanoseconds to seconds
         let token = token::encode(self.id, now)?;
         Ok(token)
@@ -65,9 +101,19 @@ impl User {
 }
 
 #[derive(Insertable, Debug, Deserialize)]
-#[table_name = "users"]
-pub struct SignupUser<'a> {
-    pub email: &'a str,
-    pub username: &'a str,
-    pub password_hash: &'a str,
+#[diesel(table_name = users)]
+struct SignupUser<'a> {
+    username: &'a str,
+    email: &'a str,
+    password_hash: &'a str,
+}
+
+#[derive(AsChangeset, Debug, Deserialize, Clone)]
+#[diesel(table_name = users)]
+struct UpdateUser {
+    username: Option<String>,
+    email: Option<String>,
+    password_hash: Option<String>,
+    image: Option<String>,
+    bio: Option<String>,
 }

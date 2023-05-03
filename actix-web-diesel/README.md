@@ -52,4 +52,17 @@ curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"user":{"email":"john@example.com","password":"password123"}}' \
     http://localhost:8080/api/users/login
+
+# get current user
+curl -X GET \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    http://localhost:8080/api/user
+
+# update current user
+curl -X PUT \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"user":{"bio":"hi"}}' \
+    http://localhost:8080/api/user
 ```
