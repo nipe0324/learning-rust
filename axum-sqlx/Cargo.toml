@@ -19,6 +19,7 @@ sqlx = { version = "0.6.3", features = ["runtime-tokio-native-tls", "postgres", 
 # Async runtime
 # https://docs.rs/tokio/latest/tokio/
 tokio = { version = "1.28.0", features = ["macros", "rt-multi-thread"] }
+futures = "0.3.28"
 
 # Password hashing
 # https://docs.rs/argon2/latest/argon2/
@@ -46,4 +47,3 @@ log = "0.4.17"
 time = "0.3.20"
 async-trait = "0.1.68"
 itertools = "0.10.5"
-features = "0.10.0"

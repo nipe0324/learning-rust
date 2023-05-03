@@ -12,10 +12,13 @@ use crate::http::types::Timestamptz;
 use crate::http::{ApiContext, Result};
 
 // mod comments;
-// mod listing;
+mod listing;
 
 pub(crate) fn router() -> Router<ApiContext> {
-    Router::new().route("/api/articles", post(create_article))
+    Router::new().route(
+        "/api/articles",
+        post(create_article).get(listing::list_articles),
+    )
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
