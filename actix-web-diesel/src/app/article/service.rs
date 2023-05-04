@@ -13,6 +13,8 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
+// Fetch articles
+
 pub struct FetchArticlesList {
     pub tag: Option<String>,
     pub author: Option<String>,
@@ -90,6 +92,8 @@ pub fn fetch_articles_list(
     Ok((articles_list, articles_count))
 }
 
+// Fetch following articles
+
 pub struct FetchFollowingArticlesService {
     pub current_user: User,
     pub offset: i64,
@@ -153,6 +157,22 @@ pub fn fetch_following_articles(
     Ok((articles_list, articles_count))
 }
 
+// Fetch an article by slug
+pub struct FetchArticleBySlug {
+    pub slug: String,
+}
+
+pub fn fetch_article_by_slug(
+    conn: &mut PgConnection,
+    params: &FetchArticleBySlug,
+) -> Result<(Article, Profile), AppError> {
+    let (article, author) = Article::find_by_slug_with_author(conn, &params.slug)?;
+    let profile = author.get_profile(conn, &author.id)?;
+    Ok((article, profile))
+}
+
+// Create an article
+
 pub struct CreateArticleService {
     pub slug: String,
     pub title: String,
@@ -162,7 +182,6 @@ pub struct CreateArticleService {
     pub current_user: User,
 }
 
-// Create an article
 pub fn create_article(
     conn: &mut PgConnection,
     params: &CreateArticleService,

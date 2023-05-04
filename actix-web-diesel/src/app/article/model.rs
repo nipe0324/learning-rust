@@ -52,6 +52,17 @@ impl Article {
         Ok(ids)
     }
 
+    pub fn find_by_slug_with_author(
+        conn: &mut PgConnection,
+        slug: &str,
+    ) -> Result<(Self, User), AppError> {
+        let result = articles::table
+            .inner_join(users::table)
+            .filter(articles::slug.eq(slug))
+            .get_result::<(Self, User)>(conn)?;
+        Ok(result)
+    }
+
     pub fn create(conn: &mut PgConnection, record: &CreateArticle) -> Result<Self, AppError> {
         let article = diesel::insert_into(articles::table)
             .values(record)

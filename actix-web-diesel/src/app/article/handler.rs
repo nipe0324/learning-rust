@@ -55,6 +55,19 @@ pub async fn get_articles_feed(
     Ok(HttpResponse::Ok().json(res))
 }
 
+pub async fn get_article_by_slug(
+    state: web::Data<AppState>,
+    path: web::Path<ArticleTitleSlug>,
+) -> ApiResponse {
+    let conn = &mut state.conn()?;
+    let slug = path.into_inner();
+    let (article, profile) =
+        service::fetch_article_by_slug(conn, &service::FetchArticleBySlug { slug })?;
+
+    let res = SingleArticleResponse::from((article, profile));
+    Ok(HttpResponse::Ok().json(res))
+}
+
 pub async fn create_article(
     state: web::Data<AppState>,
     req: HttpRequest,

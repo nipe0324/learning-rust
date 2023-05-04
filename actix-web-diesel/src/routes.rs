@@ -1,4 +1,6 @@
-use crate::app::article::handler::{create_article, get_articles, get_articles_feed};
+use crate::app::article::handler::{
+    create_article, get_article_by_slug, get_articles, get_articles_feed,
+};
 use crate::app::follow::handler::{create_follow, delete_follow};
 use crate::app::healthcheck::handler::get_healthcheck;
 use crate::app::profile::handler::get_profile;
@@ -18,6 +20,16 @@ pub fn api(cfg: &mut ServiceConfig) {
             .route("/profiles/{username}/follow", delete().to(delete_follow))
             .route("/articles", get().to(get_articles))
             .route("/articles", post().to(create_article))
-            .route("/articles/feed", get().to(get_articles_feed)),
+            .route("/articles/feed", get().to(get_articles_feed))
+            .route("/articles/{slug}", get().to(get_article_by_slug)),
+        // TODO: not implemented below apis
+        // .route("/articles/{slug}", put().to(update_article))
+        // .route("/articles/{slug}", delete().to(delete_article))
+        // .route("/articles/{slug}/farovite", post().to(create_farovite))
+        // .route("/articles/{slug}/farovite", delete().to(delete_farovite))
+        // .route("/articles/{slug}/comments", get().to(get_comments))
+        // .route("/articles/{slug}/comments", post().to(create_comment))
+        // .route("/articles/{slug}/comments/{id}", delete().to(delete_comment))
+        // .route("/tags", get().to(get_tags),
     );
 }
