@@ -115,3 +115,23 @@ pub async fn update_article(
     let res = SingleArticleResponse::from((article, profile));
     Ok(HttpResponse::Ok().json(res))
 }
+
+pub async fn delete_article(
+    state: web::Data<AppState>,
+    req: HttpRequest,
+    path: web::Path<ArticleTitleSlug>,
+) -> ApiResponse {
+    let conn = &mut state.conn()?;
+    let current_user = auth::get_current_user(&req)?;
+    let slug = path.into_inner();
+
+    service::delete_article(
+        conn,
+        &service::DeleteArticleService {
+            current_user,
+            slug: slug.clone(),
+        },
+    )?;
+
+    Ok(HttpResponse::Ok().json(()))
+}

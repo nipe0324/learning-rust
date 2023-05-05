@@ -115,10 +115,16 @@ curl -X POST \
     -d '{"article":{"title":"first article", "description":"this is description", "body":"body"}}' \
     http://localhost:8080/api/articles
 
-# updage article
+# update article
 curl -X PUT \
     -H "Content-Type: application/json" \
     -H "Authorization: Token $YOUR_TOKEN" \
     -d '{"article":{"body":"updated body"}}' \
     http://localhost:8080/api/articles/first-article
+
+# delete article
+curl -X DELETE \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    http://localhost:8080/api/articles/some-article
 ```

@@ -88,11 +88,11 @@ impl Article {
         Ok(article)
     }
 
-    pub fn delete(conn: &mut PgConnection, params: &DeleteArticle) -> Result<(), AppError> {
+    pub fn delete(conn: &mut PgConnection, slug: &str, author_id: &Uuid) -> Result<(), AppError> {
         diesel::delete(
             articles::table
-                .filter(articles::slug.eq(&params.slug))
-                .filter(articles::author_id.eq(&params.author_id)),
+                .filter(articles::slug.eq(slug))
+                .filter(articles::author_id.eq(author_id)),
         )
         .execute(conn)?;
         // NOTE: references tag rows are deleted automatically by DELETE CASCADE
@@ -118,9 +118,4 @@ pub struct UpdateArticle {
     pub title: Option<String>,
     pub description: Option<String>,
     pub body: Option<String>,
-}
-
-pub struct DeleteArticle {
-    pub slug: String,
-    pub author_id: Uuid,
 }

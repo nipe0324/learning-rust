@@ -224,6 +224,8 @@ pub fn update_artilce(
     conn: &mut PgConnection,
     params: &UpdateArticleServide,
 ) -> Result<(Article, Profile), AppError> {
+    Article::find_by_slug_with_author(conn, &params.slug)?;
+
     let title_slug = params
         .title
         .as_ref()
@@ -250,4 +252,22 @@ pub fn update_artilce(
     // let favorite_info
 
     Ok((article, profile))
+}
+
+// Delete an article
+
+pub struct DeleteArticleService {
+    pub current_user: User,
+    pub slug: String,
+}
+
+pub fn delete_article(
+    conn: &mut PgConnection,
+    params: &DeleteArticleService,
+) -> Result<(), AppError> {
+    Article::find_by_slug_with_author(conn, &params.slug)?;
+
+    Article::delete(conn, &params.slug, &params.current_user.id)?;
+
+    Ok(())
 }
