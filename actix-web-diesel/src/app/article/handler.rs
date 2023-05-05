@@ -1,5 +1,6 @@
-use super::model::Article;
-use super::request::{ArticlesListQueryParameter, CreateArticleRequest, FeedQueryParameter};
+use super::request::{
+    ArticlesListQueryParameter, CreateArticleRequest, FeedQueryParameter, UpdateArticleRequest,
+};
 use super::response::{MultipleArticlesResponse, SingleArticleResponse};
 use super::service;
 use crate::middleware::auth;
@@ -79,11 +80,35 @@ pub async fn create_article(
     let (article, profile) = service::create_article(
         conn,
         &service::CreateArticleService {
+            current_user,
             title: form.article.title.clone(),
-            slug: Article::convert_title_to_slug(&form.article.title),
             description: form.article.description.clone(),
             body: form.article.body.clone(),
+        },
+    )?;
+
+    let res = SingleArticleResponse::from((article, profile));
+    Ok(HttpResponse::Ok().json(res))
+}
+
+pub async fn update_article(
+    state: web::Data<AppState>,
+    req: HttpRequest,
+    path: web::Path<ArticleTitleSlug>,
+    form: web::Json<UpdateArticleRequest>,
+) -> ApiResponse {
+    let conn = &mut state.conn()?;
+    let current_user = auth::get_current_user(&req)?;
+    let slug = path.into_inner();
+
+    let (article, profile) = service::update_artilce(
+        conn,
+        &service::UpdateArticleServide {
             current_user,
+            slug,
+            title: form.article.title.clone(),
+            description: form.article.description.clone(),
+            body: form.article.body.clone(),
         },
     )?;
 

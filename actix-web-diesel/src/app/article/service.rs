@@ -1,4 +1,4 @@
-use crate::app::article::model::{Article, CreateArticle};
+use crate::app::article::model::{Article, CreateArticle, UpdateArticle};
 // use crate::app::favorite::model::{Favorite, FavoriteInfo};
 use crate::app::follow::model::Follow;
 use crate::app::profile::model::Profile;
@@ -174,26 +174,70 @@ pub fn fetch_article_by_slug(
 // Create an article
 
 pub struct CreateArticleService {
-    pub slug: String,
+    pub current_user: User,
     pub title: String,
     pub description: String,
     pub body: String,
     // pub tag_name_list: Option<Vec<String>>,
-    pub current_user: User,
 }
 
 pub fn create_article(
     conn: &mut PgConnection,
     params: &CreateArticleService,
 ) -> Result<(Article, Profile), AppError> {
+    let title_slug = Article::convert_title_to_slug(&params.title);
+
     let article = Article::create(
         conn,
         &CreateArticle {
+            slug: title_slug,
             author_id: params.current_user.id,
-            slug: params.slug.clone(),
             title: params.title.clone(),
             description: params.description.clone(),
             body: params.body.clone(),
+        },
+    )?;
+
+    // TODO
+    // let tag_list = create_tag_list(...)
+
+    let profile = params.current_user.get_profile(conn, &article.author_id)?;
+
+    // TODO
+    // let favorite_info
+
+    Ok((article, profile))
+}
+
+// Update an article
+
+pub struct UpdateArticleServide {
+    pub current_user: User,
+    pub slug: String,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub body: Option<String>,
+    // pub tag_name_list: Option<Vec<String>>,
+}
+
+pub fn update_artilce(
+    conn: &mut PgConnection,
+    params: &UpdateArticleServide,
+) -> Result<(Article, Profile), AppError> {
+    let title_slug = params
+        .title
+        .as_ref()
+        .map(|t| Article::convert_title_to_slug(t));
+
+    let article = Article::update(
+        conn,
+        &params.slug,
+        &params.current_user.id,
+        &UpdateArticle {
+            slug: title_slug,
+            title: params.title.to_owned(),
+            description: params.description.to_owned(),
+            body: params.body.to_owned(),
         },
     )?;
 

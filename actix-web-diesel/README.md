@@ -105,12 +105,20 @@ curl -X GET \
 # get article by slug
 curl -X GET \
     -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/articles/first-article
 
 # create article
-curl -X POST
+curl -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Token $YOUR_TOKEN" \
     -d '{"article":{"title":"first article", "description":"this is description", "body":"body"}}' \
     http://localhost:8080/api/articles
+
+# updage article
+curl -X PUT \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"article":{"body":"updated body"}}' \
+    http://localhost:8080/api/articles/first-article
 ```

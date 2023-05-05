@@ -73,13 +73,13 @@ impl Article {
 
     pub fn update(
         conn: &mut PgConnection,
-        article_title_slug: &str,
+        slug: &str,
         author_id: &Uuid,
         record: &UpdateArticle,
     ) -> Result<Self, AppError> {
         let article = diesel::update(
             articles::table
-                .filter(articles::slug.eq(article_title_slug))
+                .filter(articles::slug.eq(slug))
                 .filter(articles::author_id.eq(author_id)),
         )
         .set(record)
