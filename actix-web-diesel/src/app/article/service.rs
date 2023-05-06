@@ -167,7 +167,7 @@ pub fn fetch_article_by_slug(
     params: &FetchArticleBySlug,
 ) -> Result<(Article, Profile), AppError> {
     let (article, author) = Article::find_by_slug_with_author(conn, &params.slug)?;
-    let profile = author.get_profile(conn, &author.id)?;
+    let profile = author.get_profile(conn, &author.id);
     Ok((article, profile))
 }
 
@@ -201,7 +201,7 @@ pub fn create_article(
     // TODO
     // let tag_list = create_tag_list(...)
 
-    let profile = params.current_user.get_profile(conn, &article.author_id)?;
+    let profile = params.current_user.get_profile(conn, &article.author_id);
 
     // TODO
     // let favorite_info
@@ -246,7 +246,7 @@ pub fn update_artilce(
     // TODO
     // let tag_list = create_tag_list(...)
 
-    let profile = params.current_user.get_profile(conn, &article.author_id)?;
+    let profile = params.current_user.get_profile(conn, &article.author_id);
 
     // TODO
     // let favorite_info

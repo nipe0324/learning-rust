@@ -105,7 +105,6 @@ curl -X GET \
 # get article by slug
 curl -X GET \
     -H "Content-Type: application/json" \
-    -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/articles/first-article
 
 # create article
@@ -127,4 +126,13 @@ curl -X DELETE \
     -H "Content-Type: application/json" \
     -H "Authorization: Token $YOUR_TOKEN" \
     http://localhost:8080/api/articles/some-article
+```
+
+comments
+
+```sh
+# get article comments
+curl -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8080/api/articles/first-article
 ```

@@ -1,6 +1,5 @@
 use crate::app::follow::model::Follow;
 use crate::app::user::model::User;
-use crate::error::AppError;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -16,18 +15,14 @@ pub struct Profile {
 
 impl User {
     /// Get a user's profile
-    pub fn get_profile(
-        &self,
-        conn: &mut PgConnection,
-        followee_id: &Uuid,
-    ) -> Result<Profile, AppError> {
+    pub fn get_profile(&self, conn: &mut PgConnection, followee_id: &Uuid) -> Profile {
         let is_following = Follow::is_following(conn, &self.id, followee_id);
-        let profile = Profile {
+
+        Profile {
             username: self.username.to_owned(),
             bio: self.bio.to_owned(),
             image: self.image.to_owned(),
             following: is_following.to_owned(),
-        };
-        Ok(profile)
+        }
     }
 }

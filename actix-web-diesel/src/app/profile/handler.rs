@@ -17,7 +17,7 @@ pub async fn get_profile(
 
     let profile = {
         let followee = User::find_by_username(conn, &username)?;
-        current_user.get_profile(conn, &followee.id)?
+        current_user.get_profile(conn, &followee.id)
     };
 
     let res = ProfileResponse::from(profile);
