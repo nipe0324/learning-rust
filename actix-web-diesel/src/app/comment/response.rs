@@ -25,23 +25,36 @@ impl From<Vec<(Comment, Profile)>> for MultipleCommentsResponse {
 }
 
 #[derive(Deserialize, Serialize)]
+pub struct SingleCommentResponse {
+    pub comment: InnerComment,
+}
+
+impl From<(Comment, Profile)> for SingleCommentResponse {
+    fn from((comment, profile): (Comment, Profile)) -> Self {
+        Self {
+            comment: InnerComment::from((&comment, &profile)),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InnerComment {
     pub id: Uuid,
+    pub author: InnerAuthor,
     pub body: String,
     pub created_at: Iso8601,
     pub updated_at: Iso8601,
-    pub author: InnerAuthor,
 }
 
 impl From<(&Comment, &Profile)> for InnerComment {
     fn from((comment, profile): (&Comment, &Profile)) -> Self {
         Self {
             id: comment.id,
+            author: InnerAuthor::from(profile),
             body: comment.body.to_string(),
             created_at: Iso8601(comment.created_at),
             updated_at: Iso8601(comment.updated_at),
-            author: InnerAuthor::from(profile),
         }
     }
 }

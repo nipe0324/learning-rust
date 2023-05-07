@@ -134,5 +134,12 @@ comments
 # get article comments
 curl -X GET \
     -H "Content-Type: application/json" \
-    http://localhost:8080/api/articles/first-article
+    http://localhost:8080/api/articles/first-article/comments
+
+# create article comment
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"comment":{"body":"this is comment of first"}}' \
+    http://localhost:8080/api/articles/first-article/comments
 ```

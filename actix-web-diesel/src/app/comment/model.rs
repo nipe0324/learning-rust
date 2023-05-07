@@ -33,4 +33,19 @@ impl Comment {
 
         Ok(items)
     }
+
+    pub fn create(conn: &mut PgConnection, record: &CreateComment) -> Result<Self, AppError> {
+        let new_comment = diesel::insert_into(comments::table)
+            .values(record)
+            .get_result::<Comment>(conn)?;
+        Ok(new_comment)
+    }
+}
+
+#[derive(Insertable, Clone)]
+#[diesel(table_name = comments)]
+pub struct CreateComment {
+    pub article_id: Uuid,
+    pub author_id: Uuid,
+    pub body: String,
 }
