@@ -142,4 +142,11 @@ curl -X POST \
     -H "Authorization: Token $YOUR_TOKEN" \
     -d '{"comment":{"body":"this is comment of first"}}' \
     http://localhost:8080/api/articles/first-article/comments
+
+# delete article comment
+curl -X DELETE \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"comment":{"body":"this is comment of first"}}' \
+    http://localhost:8080/api/articles/first-article/comments/64c07418-213d-497a-8938-6902ebad6e84
 ```

@@ -22,6 +22,18 @@ pub struct Comment {
 }
 
 impl Comment {
+    pub fn find_by_comment_id_and_author_id(
+        conn: &mut PgConnection,
+        comment_id: &Uuid,
+        author_id: &Uuid,
+    ) -> Result<Comment, AppError> {
+        let comment = comments::table
+            .filter(comments::author_id.eq(author_id))
+            .find(comment_id)
+            .first::<Comment>(conn)?;
+        Ok(comment)
+    }
+
     pub fn find_comments_with_author_by_article_id(
         conn: &mut PgConnection,
         article_id: &Uuid,
@@ -40,6 +52,15 @@ impl Comment {
             .get_result::<Comment>(conn)?;
         Ok(new_comment)
     }
+
+    pub fn delete(conn: &mut PgConnection, params: &DeleteComment) -> Result<(), AppError> {
+        diesel::delete(comments::table)
+            .filter(comments::article_id.eq(params.article_id))
+            .filter(comments::author_id.eq(params.author_id))
+            .filter(comments::id.eq(params.comment_id))
+            .execute(conn)?;
+        Ok(())
+    }
 }
 
 #[derive(Insertable, Clone)]
@@ -48,4 +69,10 @@ pub struct CreateComment {
     pub article_id: Uuid,
     pub author_id: Uuid,
     pub body: String,
+}
+
+pub struct DeleteComment {
+    pub article_id: Uuid,
+    pub author_id: Uuid,
+    pub comment_id: Uuid,
 }

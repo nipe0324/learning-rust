@@ -5,6 +5,7 @@ use crate::app::profile::model::Profile;
 use crate::app::user::model::User;
 use crate::error::AppError;
 use diesel::pg::PgConnection;
+use uuid::Uuid;
 
 // Get comments for an article
 pub struct FetchArticleCommentsService {
@@ -56,4 +57,32 @@ pub fn create_article_comment(
     )?;
     let profile = params.author.get_profile(conn, &params.author.id);
     Ok((comment, profile))
+}
+
+// Delete an article comment
+
+pub struct DeleteArticleCommentService {
+    pub slug: String,
+    pub comment_id: Uuid,
+    pub author_id: Uuid,
+}
+
+pub fn delete_article_comment(
+    conn: &mut PgConnection,
+    params: &DeleteArticleCommentService,
+) -> Result<(), AppError> {
+    let (article, _) = Article::find_by_slug_with_author(conn, &params.slug)?;
+    let comment =
+        Comment::find_by_comment_id_and_author_id(conn, &params.comment_id, &params.author_id)?;
+
+    Comment::delete(
+        conn,
+        &model::DeleteComment {
+            article_id: article.id,
+            author_id: params.author_id,
+            comment_id: comment.id,
+        },
+    )?;
+
+    Ok(())
 }

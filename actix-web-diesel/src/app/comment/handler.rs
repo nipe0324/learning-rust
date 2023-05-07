@@ -6,6 +6,7 @@ use super::{
 use crate::middleware::auth;
 use crate::middleware::state::AppState;
 use crate::utils::handler::ApiResponse;
+use crate::utils::uuid;
 use actix_web::{web, HttpRequest, HttpResponse};
 
 type ArticleTitleSlug = String;
@@ -46,4 +47,26 @@ pub async fn create_article_comment(
 
     let res = SingleCommentResponse::from((comment, profile));
     Ok(HttpResponse::Ok().json(res))
+}
+
+pub async fn delete_article_comment(
+    state: web::Data<AppState>,
+    req: HttpRequest,
+    path: web::Path<(ArticleTitleSlug, CommentIdSlug)>,
+) -> ApiResponse {
+    let conn = &mut state.conn()?;
+    let current_user = auth::get_current_user(&req)?;
+    let (slug, comment_id) = path.into_inner();
+    let comment_id = uuid::parse(&comment_id)?;
+
+    service::delete_article_comment(
+        conn,
+        &service::DeleteArticleCommentService {
+            slug,
+            comment_id,
+            author_id: current_user.id,
+        },
+    )?;
+
+    Ok(HttpResponse::Ok().json("OK"))
 }
