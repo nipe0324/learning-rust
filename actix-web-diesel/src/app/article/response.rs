@@ -1,7 +1,7 @@
 use crate::app::article::model::Article;
 // use crate::app::favorite::model::FavoriteInfo;
 use crate::app::profile::model::Profile;
-// use crate::app::tag::model::Tag;
+use crate::app::tag::model::Tag;
 use crate::utils::date::Iso8601;
 use serde::{Deserialize, Serialize};
 use std::convert::From;
@@ -11,10 +11,10 @@ pub struct SingleArticleResponse {
     pub article: ArticleContent,
 }
 
-impl From<(Article, Profile)> for SingleArticleResponse {
-    fn from((article, profile): (Article, Profile)) -> Self {
+impl From<(Article, Profile, Vec<Tag>)> for SingleArticleResponse {
+    fn from((article, profile, tags): (Article, Profile, Vec<Tag>)) -> Self {
         Self {
-            article: ArticleContent::from((article, profile)),
+            article: ArticleContent::from((article, profile, tags)),
         }
     }
 }
@@ -29,7 +29,7 @@ pub struct MultipleArticlesResponse {
 }
 
 type ArticlesCount = i64;
-type Inner = (Article, Profile);
+type Inner = ((Article, Profile), Vec<Tag>);
 type ArticlesList = Vec<Inner>;
 type Item = (ArticlesList, ArticlesCount);
 
@@ -37,8 +37,9 @@ impl From<Item> for MultipleArticlesResponse {
     fn from((list, articles_count): (Vec<Inner>, ArticleCount)) -> Self {
         let articles = list
             .iter()
-            .map(|(article, profile)| {
-                ArticleContent::from((article.to_owned(), profile.to_owned()))
+            .map(|((article, profile), tag_list)| {
+                ArticleContent::from((article.to_owned(), profile.to_owned(), tag_list.to_owned()))
+                // TODO: tags
             })
             .collect();
         Self {
@@ -55,7 +56,7 @@ pub struct ArticleContent {
     pub title: String,
     pub description: String,
     pub body: String,
-    // pub tag_list: Vec<String>,
+    pub tag_list: Vec<String>,
     pub created_at: Iso8601,
     pub updated_at: Iso8601,
     // pub favorited: bool,
@@ -63,15 +64,14 @@ pub struct ArticleContent {
     pub author: AuthorContent,
 }
 
-impl From<(Article, Profile)> for ArticleContent {
-    fn from((article, profile): (Article, Profile)) -> Self {
+impl From<(Article, Profile, Vec<Tag>)> for ArticleContent {
+    fn from((article, profile, tag_list): (Article, Profile, Vec<Tag>)) -> Self {
         Self {
             slug: article.slug,
             title: article.title,
             description: article.description,
             body: article.body,
-            // TODO
-            // tag_list: tag_list.iter().map(move |tag| tag.name.clone()).collect(),
+            tag_list: tag_list.iter().map(|tag| tag.name.to_string()).collect(),
             created_at: Iso8601(article.created_at),
             updated_at: Iso8601(article.updated_at),
             // TODO

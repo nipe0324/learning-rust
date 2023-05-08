@@ -111,7 +111,7 @@ curl -X GET \
 curl -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Token $YOUR_TOKEN" \
-    -d '{"article":{"title":"first article", "description":"this is description", "body":"body"}}' \
+    -d '{"article":{"title":"first article", "description":"this is description", "body":"body", "tagList":["a1","b1"]}}' \
     http://localhost:8080/api/articles
 
 # update article

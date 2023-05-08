@@ -62,10 +62,10 @@ pub async fn get_article_by_slug(
 ) -> ApiResponse {
     let conn = &mut state.conn()?;
     let slug = path.into_inner();
-    let (article, profile) =
+    let (article, profile, tag_list) =
         service::fetch_article_by_slug(conn, &service::FetchArticleBySlug { slug })?;
 
-    let res = SingleArticleResponse::from((article, profile));
+    let res = SingleArticleResponse::from((article, profile, tag_list));
     Ok(HttpResponse::Ok().json(res))
 }
 
@@ -77,17 +77,18 @@ pub async fn create_article(
     let conn = &mut state.conn()?;
     let current_user = auth::get_current_user(&req)?;
 
-    let (article, profile) = service::create_article(
+    let (article, profile, tags) = service::create_article(
         conn,
         &service::CreateArticleService {
             current_user,
             title: form.article.title.clone(),
             description: form.article.description.clone(),
             body: form.article.body.clone(),
+            tag_name_list: form.article.tag_list.clone(),
         },
     )?;
 
-    let res = SingleArticleResponse::from((article, profile));
+    let res = SingleArticleResponse::from((article, profile, tags));
     Ok(HttpResponse::Ok().json(res))
 }
 
@@ -101,7 +102,7 @@ pub async fn update_article(
     let current_user = auth::get_current_user(&req)?;
     let slug = path.into_inner();
 
-    let (article, profile) = service::update_artilce(
+    let (article, profile, tag_list) = service::update_artilce(
         conn,
         &service::UpdateArticleServide {
             current_user,
@@ -112,7 +113,7 @@ pub async fn update_article(
         },
     )?;
 
-    let res = SingleArticleResponse::from((article, profile));
+    let res = SingleArticleResponse::from((article, profile, tag_list));
     Ok(HttpResponse::Ok().json(res))
 }
 
