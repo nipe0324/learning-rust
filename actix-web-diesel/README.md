@@ -150,3 +150,12 @@ curl -X DELETE \
     -d '{"comment":{"body":"this is comment of first"}}' \
     http://localhost:8080/api/articles/first-article/comments/64c07418-213d-497a-8938-6902ebad6e84
 ```
+
+tags
+
+```sh
+# get tags
+curl -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8080/api/tags
+```

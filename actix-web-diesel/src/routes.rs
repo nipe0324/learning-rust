@@ -8,6 +8,7 @@ use crate::app::comment::handler::{
 use crate::app::follow::handler::{create_follow, delete_follow};
 use crate::app::healthcheck::handler::get_healthcheck;
 use crate::app::profile::handler::get_profile;
+use crate::app::tag::handler::get_tags;
 use crate::app::user::handler::{get_user, signin, signup, update_user};
 use actix_web::web::{delete, get, post, put, scope, ServiceConfig};
 
@@ -36,10 +37,10 @@ pub fn api(cfg: &mut ServiceConfig) {
             .route(
                 "/articles/{slug}/comments/{id}",
                 delete().to(delete_article_comment),
-            ),
+            )
+            .route("/tags", get().to(get_tags)),
         // TODO: not implemented below apis
         // .route("/articles/{slug}/farovite", post().to(create_farovite))
         // .route("/articles/{slug}/farovite", delete().to(delete_farovite))
-        // .route("/tags", get().to(get_tags),
     );
 }
