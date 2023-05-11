@@ -16,9 +16,10 @@ pub async fn create_favorite(
     let current_user = auth::get_current_user(&req)?;
     let slug = path.into_inner();
 
-    let (article, profile, tags_list) = service::create_favorite(conn, current_user, slug)?;
+    let (article, profile, favorite_info, tags_list) =
+        service::create_favorite(conn, current_user, slug)?;
 
-    let res = SingleArticleResponse::from((article, profile, tags_list));
+    let res = SingleArticleResponse::from((article, profile, favorite_info, tags_list));
     Ok(HttpResponse::Ok().json(&res))
 }
 
@@ -31,8 +32,9 @@ pub async fn delete_favorite(
     let current_user = auth::get_current_user(&req)?;
     let slug = path.into_inner();
 
-    let (article, profile, tags_list) = service::delete_favorite(conn, current_user, slug)?;
+    let (article, profile, favorite_info, tags_list) =
+        service::delete_favorite(conn, current_user, slug)?;
 
-    let res = SingleArticleResponse::from((article, profile, tags_list));
+    let res = SingleArticleResponse::from((article, profile, favorite_info, tags_list));
     Ok(HttpResponse::Ok().json(&res))
 }

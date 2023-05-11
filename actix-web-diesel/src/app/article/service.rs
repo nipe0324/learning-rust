@@ -1,14 +1,15 @@
 use crate::app::article::model::{Article, CreateArticle, UpdateArticle};
-// use crate::app::favorite::model::{Favorite, FavoriteInfo};
+use crate::app::favorite::{
+    model::{Favorite, FavoriteInfo},
+    service::fetch_favorite_info,
+};
 use crate::app::follow::model::Follow;
 use crate::app::profile::model::Profile;
 use crate::app::tag::model::{CreateTag, Tag};
 use crate::app::user::model::User;
-// use crate::app::user::model::User;
 use crate::error::AppError;
 use crate::schema::articles::dsl::*;
 use crate::schema::{articles, follows, tags, users};
-// use actix_web::App;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -24,7 +25,7 @@ pub struct FetchArticlesList {
 }
 
 type ArticlesCount = i64;
-type ArticlesListInner = (Article, Profile);
+type ArticlesListInner = (Article, Profile, FavoriteInfo);
 type ArticlesList = Vec<(ArticlesListInner, Vec<Tag>)>;
 
 pub fn fetch_articles_list(
@@ -44,8 +45,10 @@ pub fn fetch_articles_list(
             query = query.filter(articles::id.eq_any(ids));
         }
 
-        // TODO:
-        // if let Some(username) = &params.favorited {}
+        if let Some(username) = &params.favorited {
+            let ids = Favorite::find_favorited_article_ids_by_username(conn, username)?;
+            query = query.filter(articles::id.eq_any(ids));
+        }
 
         query
     };
@@ -68,8 +71,10 @@ pub fn fetch_articles_list(
             query = query.filter(articles::id.eq_any(ids));
         }
 
-        // TODO:
-        // if let Some(username) = &params.favorited {}
+        if let Some(username) = &params.favorited {
+            let ids = Favorite::find_favorited_article_ids_by_username(conn, username)?;
+            query = query.filter(articles::id.eq_any(ids));
+        }
 
         query
     };
@@ -94,9 +99,20 @@ pub fn fetch_articles_list(
         tags_list
     };
 
+    let favorites_count_list = {
+        let list: Result<Vec<i64>, _> = article_and_user_list
+            .clone()
+            .into_iter()
+            .map(|(article, _)| Favorite::find_favorites_count_by_article_id(conn, &article.id))
+            .collect();
+
+        list?
+    };
+
     let articles_list = article_and_user_list
         .into_iter()
-        .map(|(article, user)| {
+        .zip(favorites_count_list)
+        .map(|((article, user), favorites_count)| {
             (
                 article,
                 Profile {
@@ -104,6 +120,10 @@ pub fn fetch_articles_list(
                     bio: user.bio,
                     image: user.image,
                     following: false, // NOTE: because not authz
+                },
+                FavoriteInfo {
+                    is_favorited: false, // NOTE: because not authz
+                    favorites_count,
                 },
             )
         })
@@ -173,10 +193,33 @@ pub fn fetch_following_articles(
             tags_list
         };
 
+        let favorites_count_list = {
+            let list: Result<Vec<i64>, _> = article_and_user_list
+                .clone()
+                .into_iter()
+                .map(|(article, _)| Favorite::find_favorites_count_by_article_id(conn, &article.id))
+                .collect();
+
+            list?
+        };
+
+        let favorited_article_ids = Favorite::find_favorited_article_ids_by_username(
+            conn,
+            params.current_user.username.as_str(),
+        )?;
+        let is_favorited_by_me = |article: &Article| {
+            favorited_article_ids
+                .iter()
+                .copied()
+                .any(|_id| _id == article.id)
+        };
+
         article_and_user_list
             .into_iter()
-            .map(|(article, user)| {
+            .zip(favorites_count_list)
+            .map(|((article, user), favorites_count)| {
                 let following = follows_list.clone().any(|item| item.followee_id == user.id);
+                let is_favorited = is_favorited_by_me(&article);
                 (
                     article,
                     Profile {
@@ -184,6 +227,10 @@ pub fn fetch_following_articles(
                         bio: user.bio,
                         image: user.image,
                         following: following.to_owned(),
+                    },
+                    FavoriteInfo {
+                        is_favorited,
+                        favorites_count,
                     },
                 )
             })
@@ -202,11 +249,12 @@ pub struct FetchArticleBySlug {
 pub fn fetch_article_by_slug(
     conn: &mut PgConnection,
     params: &FetchArticleBySlug,
-) -> Result<(Article, Profile, Vec<Tag>), AppError> {
+) -> Result<(Article, Profile, FavoriteInfo, Vec<Tag>), AppError> {
     let (article, author) = Article::find_by_slug_with_author(conn, &params.slug)?;
     let profile = author.get_profile(conn, &author.id);
     let tags_list = Tag::find_tags_by_article_id(conn, &article.id)?;
-    Ok((article, profile, tags_list))
+    let favorite_info = fetch_favorite_info(conn, &article.id, &author.id)?;
+    Ok((article, profile, favorite_info, tags_list))
 }
 
 // Create an article
@@ -222,7 +270,7 @@ pub struct CreateArticleService {
 pub fn create_article(
     conn: &mut PgConnection,
     params: &CreateArticleService,
-) -> Result<(Article, Profile, Vec<Tag>), AppError> {
+) -> Result<(Article, Profile, FavoriteInfo, Vec<Tag>), AppError> {
     let title_slug = Article::convert_title_to_slug(&params.title);
 
     let article = Article::create(
@@ -240,10 +288,9 @@ pub fn create_article(
 
     let profile = params.current_user.get_profile(conn, &article.author_id);
 
-    // TODO
-    // let favorite_info
+    let favorite_info = fetch_favorite_info(conn, &article.id, &article.author_id)?;
 
-    Ok((article, profile, tags_list))
+    Ok((article, profile, favorite_info, tags_list))
 }
 
 fn create_tags_list(
@@ -278,7 +325,7 @@ pub struct UpdateArticleServide {
 pub fn update_artilce(
     conn: &mut PgConnection,
     params: &UpdateArticleServide,
-) -> Result<(Article, Profile, Vec<Tag>), AppError> {
+) -> Result<(Article, Profile, FavoriteInfo, Vec<Tag>), AppError> {
     Article::find_by_slug_with_author(conn, &params.slug)?;
 
     let title_slug = params
@@ -302,10 +349,9 @@ pub fn update_artilce(
 
     let profile = params.current_user.get_profile(conn, &article.author_id);
 
-    // TODO
-    // let favorite_info
+    let favorite_info = fetch_favorite_info(conn, &article.id, &article.author_id)?;
 
-    Ok((article, profile, tags_list))
+    Ok((article, profile, favorite_info, tags_list))
 }
 
 // Delete an article
