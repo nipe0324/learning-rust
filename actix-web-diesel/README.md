@@ -159,3 +159,16 @@ curl -X GET \
     -H "Content-Type: application/json" \
     http://localhost:8080/api/tags
 ```
+
+favorites
+
+```sh
+# create favorite
+curl -X PUT \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token $YOUR_TOKEN" \
+    -d '{"article":{"body":"updated body"}}' \
+    http://localhost:8080/api/articles/first-article
+
+# delete favorite
+```

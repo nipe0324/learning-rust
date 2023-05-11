@@ -5,6 +5,7 @@ use crate::app::article::handler::{
 use crate::app::comment::handler::{
     create_article_comment, delete_article_comment, get_article_comments,
 };
+use crate::app::favorite::handler::{create_favorite, delete_favorite};
 use crate::app::follow::handler::{create_follow, delete_follow};
 use crate::app::healthcheck::handler::get_healthcheck;
 use crate::app::profile::handler::get_profile;
@@ -38,9 +39,8 @@ pub fn api(cfg: &mut ServiceConfig) {
                 "/articles/{slug}/comments/{id}",
                 delete().to(delete_article_comment),
             )
-            .route("/tags", get().to(get_tags)),
-        // TODO: not implemented below apis
-        // .route("/articles/{slug}/farovite", post().to(create_farovite))
-        // .route("/articles/{slug}/farovite", delete().to(delete_farovite))
+            .route("/tags", get().to(get_tags))
+            .route("/articles/{slug}/favorite", post().to(create_favorite))
+            .route("/articles/{slug}/favorite", delete().to(delete_favorite)),
     );
 }

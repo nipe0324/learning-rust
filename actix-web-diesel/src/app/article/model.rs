@@ -30,11 +30,11 @@ impl Article {
 
     pub fn find_by_slug_and_author_id(
         conn: &mut PgConnection,
-        article_title_slug: &str,
+        slug: &str,
         author_id: &Uuid,
     ) -> Result<Self, AppError> {
         let item = articles::table
-            .filter(articles::slug.eq(article_title_slug))
+            .filter(articles::slug.eq(slug))
             .filter(articles::author_id.eq(author_id))
             .first::<Self>(conn)?;
         Ok(item)
