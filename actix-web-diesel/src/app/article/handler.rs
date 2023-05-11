@@ -62,10 +62,10 @@ pub async fn get_article_by_slug(
 ) -> ApiResponse {
     let conn = &mut state.conn()?;
     let slug = path.into_inner();
-    let (article, profile, tag_list) =
+    let (article, profile, tags_list) =
         service::fetch_article_by_slug(conn, &service::FetchArticleBySlug { slug })?;
 
-    let res = SingleArticleResponse::from((article, profile, tag_list));
+    let res = SingleArticleResponse::from((article, profile, tags_list));
     Ok(HttpResponse::Ok().json(res))
 }
 
@@ -84,7 +84,7 @@ pub async fn create_article(
             title: form.article.title.clone(),
             description: form.article.description.clone(),
             body: form.article.body.clone(),
-            tag_name_list: form.article.tag_list.clone(),
+            tag_name_list: form.article.tags_list.clone(),
         },
     )?;
 
@@ -102,7 +102,7 @@ pub async fn update_article(
     let current_user = auth::get_current_user(&req)?;
     let slug = path.into_inner();
 
-    let (article, profile, tag_list) = service::update_artilce(
+    let (article, profile, tags_list) = service::update_artilce(
         conn,
         &service::UpdateArticleServide {
             current_user,
@@ -113,7 +113,7 @@ pub async fn update_article(
         },
     )?;
 
-    let res = SingleArticleResponse::from((article, profile, tag_list));
+    let res = SingleArticleResponse::from((article, profile, tags_list));
     Ok(HttpResponse::Ok().json(res))
 }
 

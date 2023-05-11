@@ -79,19 +79,19 @@ pub fn fetch_articles_list(
         .limit(params.limit)
         .load::<(Article, User)>(conn)?;
 
-    let tag_list = {
+    let tags_list = {
         let article_list = article_and_user_list
             .iter()
             .map(|(article, _)| article.to_owned())
             .collect::<Vec<_>>();
 
-        let tag_list = Tag::belonging_to(&article_list)
+        let tags_list = Tag::belonging_to(&article_list)
             .order(tags::name.asc())
             .load::<Tag>(conn)?;
 
-        let tag_list: Vec<Vec<Tag>> = tag_list.grouped_by(&article_list);
+        let tags_list: Vec<Vec<Tag>> = tags_list.grouped_by(&article_list);
 
-        tag_list
+        tags_list
     };
 
     let articles_list = article_and_user_list
@@ -107,7 +107,7 @@ pub fn fetch_articles_list(
                 },
             )
         })
-        .zip(tag_list)
+        .zip(tags_list)
         .collect::<Vec<_>>();
 
     Ok((articles_list, articles_count))
@@ -158,19 +158,19 @@ pub fn fetch_following_articles(
             list.into_iter()
         };
 
-        let tag_list = {
+        let tags_list = {
             let article_list = article_and_user_list
                 .iter()
                 .map(|(article, _)| article.to_owned())
                 .collect::<Vec<_>>();
 
-            let tag_list = Tag::belonging_to(&article_list)
+            let tags_list = Tag::belonging_to(&article_list)
                 .order(tags::name.asc())
                 .load::<Tag>(conn)?;
 
-            let tag_list: Vec<Vec<Tag>> = tag_list.grouped_by(&article_list);
+            let tags_list: Vec<Vec<Tag>> = tags_list.grouped_by(&article_list);
 
-            tag_list
+            tags_list
         };
 
         article_and_user_list
@@ -187,7 +187,7 @@ pub fn fetch_following_articles(
                     },
                 )
             })
-            .zip(tag_list)
+            .zip(tags_list)
             .collect::<Vec<_>>()
     };
 
@@ -205,8 +205,8 @@ pub fn fetch_article_by_slug(
 ) -> Result<(Article, Profile, Vec<Tag>), AppError> {
     let (article, author) = Article::find_by_slug_with_author(conn, &params.slug)?;
     let profile = author.get_profile(conn, &author.id);
-    let tag_list = Tag::find_tags_by_article_id(conn, &article.id)?;
-    Ok((article, profile, tag_list))
+    let tags_list = Tag::find_tags_by_article_id(conn, &article.id)?;
+    Ok((article, profile, tags_list))
 }
 
 // Create an article
@@ -236,17 +236,17 @@ pub fn create_article(
         },
     )?;
 
-    let tag_list = create_tag_list(conn, &article.id, &params.tag_name_list)?;
+    let tags_list = create_tags_list(conn, &article.id, &params.tag_name_list)?;
 
     let profile = params.current_user.get_profile(conn, &article.author_id);
 
     // TODO
     // let favorite_info
 
-    Ok((article, profile, tag_list))
+    Ok((article, profile, tags_list))
 }
 
-fn create_tag_list(
+fn create_tags_list(
     conn: &mut PgConnection,
     article_id: &Uuid,
     tag_name_list: &Option<Vec<String>>,
@@ -298,14 +298,14 @@ pub fn update_artilce(
         },
     )?;
 
-    let tag_list = Tag::find_tags_by_article_id(conn, &article.id)?;
+    let tags_list = Tag::find_tags_by_article_id(conn, &article.id)?;
 
     let profile = params.current_user.get_profile(conn, &article.author_id);
 
     // TODO
     // let favorite_info
 
-    Ok((article, profile, tag_list))
+    Ok((article, profile, tags_list))
 }
 
 // Delete an article

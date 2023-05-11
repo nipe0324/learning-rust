@@ -37,8 +37,8 @@ impl From<Item> for MultipleArticlesResponse {
     fn from((list, articles_count): (Vec<Inner>, ArticleCount)) -> Self {
         let articles = list
             .iter()
-            .map(|((article, profile), tag_list)| {
-                ArticleContent::from((article.to_owned(), profile.to_owned(), tag_list.to_owned()))
+            .map(|((article, profile), tags_list)| {
+                ArticleContent::from((article.to_owned(), profile.to_owned(), tags_list.to_owned()))
                 // TODO: tags
             })
             .collect();
@@ -56,7 +56,7 @@ pub struct ArticleContent {
     pub title: String,
     pub description: String,
     pub body: String,
-    pub tag_list: Vec<String>,
+    pub tags_list: Vec<String>,
     pub created_at: Iso8601,
     pub updated_at: Iso8601,
     // pub favorited: bool,
@@ -65,13 +65,13 @@ pub struct ArticleContent {
 }
 
 impl From<(Article, Profile, Vec<Tag>)> for ArticleContent {
-    fn from((article, profile, tag_list): (Article, Profile, Vec<Tag>)) -> Self {
+    fn from((article, profile, tags_list): (Article, Profile, Vec<Tag>)) -> Self {
         Self {
             slug: article.slug,
             title: article.title,
             description: article.description,
             body: article.body,
-            tag_list: tag_list.iter().map(|tag| tag.name.to_string()).collect(),
+            tags_list: tags_list.iter().map(|tag| tag.name.to_string()).collect(),
             created_at: Iso8601(article.created_at),
             updated_at: Iso8601(article.updated_at),
             // TODO
