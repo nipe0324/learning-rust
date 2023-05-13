@@ -5,20 +5,32 @@
 
 ## コマンド
 
-Nightビルドの利用
+セットアップ
 
 ```sh
+# Nightビルドの利用
 # https://doc.rust-jp.rs/book-ja/appendix-07-nightly-rust.html
 rustup install nightly
 rustup override set nightly
 rustup component add rust-src --toolchain nightly-x86_64-apple-darwin 
 rustup toolchain list
+
+# ブータブルディスクイメージのツールの設定
+cargo install bootimage
+rustup component add llvm-tools-preview
+
+# QUMUのインストール for Mac
+brew install qemu
 ```
 
-ビルド
+ビルド・起動
 
 ```sh
-cargo build --target x86_64-blog_os.json
+# ブータブルディスクイメージの作成（bootloaderとカーネルを合体させている）
+cargo bootimage --target x86_64-blog_os.json
+
+# QEMUで起動する
+qemu-system-x86_64 -drive format=raw,file=target/x86_64-blog_os/debug/bootimage-blog_os.bin
 ```
 
 ## 用語
