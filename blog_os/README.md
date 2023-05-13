@@ -5,10 +5,20 @@
 
 ## コマンド
 
+Nightビルドの利用
+
+```sh
+# https://doc.rust-jp.rs/book-ja/appendix-07-nightly-rust.html
+rustup install nightly
+rustup override set nightly
+rustup component add rust-src --toolchain nightly-x86_64-apple-darwin 
+rustup toolchain list
+```
+
 ビルド
 
-```
-cargo build --target thumbv7em-none-eabihf
+```sh
+cargo build --target x86_64-blog_os.json
 ```
 
 ## 用語
@@ -21,3 +31,8 @@ cargo build --target thumbv7em-none-eabihf
   - デフォルトでは、パニックが起きた場合にはRustはアンワインドを使用してすべてのスタックにある変数のデストラクタを実行する
   - これにより、使用されている全てのメモリが確実に解放され、親スレッドはパニックを検知して実行を継続できる。
   - アンワインドは複雑で、いくつかのOS特有のライブラリを必要とするので、Blog OSでは無効化している
+- ブードプロセス
+  - コンピュータを起動すると、マザーボードのROMに保存されたファームウェアのコードを実行する。
+  - このコードは、起動時の自己テストを実行し、使用可能なRAMを検出し、CPUとハードウェアを事前に初期化する。
+  - その後、ブータブルディスクを探し、OSのカーネルを起動させる。
+  - x86には2つのファームウェアの標準規格があり、BIOS（古く時代遅れだがシンプルで1980年代からサポートされている）とUEFI（セットアップが複雑だが、モダンでより多くの機能をもっている）がある。
