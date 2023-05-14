@@ -1,7 +1,9 @@
-#![no_std]  // OSの機能に依存している標準ライブラリにリンクしない
+#![no_std] // OSの機能に依存している標準ライブラリにリンクしない
 #![no_main] // 通常のエントリポイントを使わないようにする
 
 use core::panic::PanicInfo;
+
+mod vga_buffer;
 
 static HELLO: &[u8] = b"Hello, World!";
 
@@ -24,5 +26,7 @@ pub extern "C" fn _start() -> ! {
 // パニック時に呼ばれる関数
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
+    vga_buffer::print_something();
+
     loop {}
 }
