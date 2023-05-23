@@ -9,23 +9,14 @@ mod vga_buffer;
 // この関数がエントリポイントになる
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
-    write!(
-        vga_buffer::WRITER.lock(),
-        ", some numbers: {} {}",
-        42,
-        1.337
-    )
-    .unwrap();
-
+    println!("Hello World{}", "!");
+    // panic!("Some panic message");
     loop {}
 }
 
 // パニック時に呼ばれる関数
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    vga_buffer::print_something();
-
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }
