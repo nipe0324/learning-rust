@@ -1,4 +1,6 @@
 use core::fmt;
+use lazy_static::lazy_static;
+use spin::Mutex;
 use volatile::Volatile;
 
 #[allow(dead_code)]
@@ -46,6 +48,14 @@ const BUFFER_WIDTH: usize = 80;
 #[repr(transparent)]
 struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
+}
+
+lazy_static! {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    });
 }
 
 pub struct Writer {

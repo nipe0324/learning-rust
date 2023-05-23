@@ -52,3 +52,6 @@ qemu-system-x86_64 -drive format=raw,file=target/x86_64-blog_os/debug/bootimage-
   - VGAテキストモードは画面にテキストを出力するシンプルな方法
   - 文字を画面に出力するには、VGAハードウェアのテキストバッファに書き込む必要がある
   - VGAテキストバッファはアドレス `0xb8000` に memory mappged I/O を通じてアクセスできる。RAMではなく直接VGAハードウェアのテキストバッファにアクセスする
+- スピンロック(Spinlock)
+  - OSを必要としない非常に単純なmutex。
+  - ブロックする代わりに、スレッドを単純にリソースを何度もロックしようとすることで、mutexが解放されるまでの間CPU時間を使い尽くす

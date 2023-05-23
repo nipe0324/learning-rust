@@ -6,8 +6,17 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# BIOS と UEFI の両方で動作する実験的な x86_64 ブートローダー
 bootloader = "0.9.23"
+
+# コンパイラに対して、揮発性メモリアクセスの最適化を行わないようにする
 volatile = "0.2.6"
+
+# 遅延な静的変数
+lazy_static = { version = "1.0", features = ["spin_no_std"] }
+
+# スピンロック
+spin = "0.5.2"
 
 [profile.dev]
 panic = "abort" # アンワインドを無効化させる
