@@ -79,7 +79,28 @@ impl Writer {
         }
     }
 
-    fn new_line(&mut self) { /* TODO */
+    fn new_line(&mut self) {
+        // 現在のテキストを1行上に移動させる
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(character);
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+
+    fn clear_row(&mut self, row: usize) {
+        // 空白の文字で埋める
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+        // 1行分の文字を空白で埋める
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank);
+        }
     }
 
     pub fn write_string(&mut self, s: &str) {
@@ -111,5 +132,6 @@ pub fn print_something() {
 
     writer.write_byte(b'H');
     writer.write_string("ello ");
+    writer.new_line();
     write!(writer, "The numbers are {} and {}", 42, 1.0 / 3.0).unwrap();
 }
