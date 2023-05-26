@@ -18,6 +18,15 @@ lazy_static = { version = "1.0", features = ["spin_no_std"] }
 # スピンロック
 spin = "0.5.2"
 
+# x86_64 アーキテクチャ固有のコード
+x86_64 = "0.14.2"
+
+[package.metadata.bootimage]
+# bootimage runnerは、test-argsをすべてのテスト実行可能ファイルの標準QEMUコマンドに追加する
+test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"]
+# 成功の終了コード (0x10 << 1) | 1 を 終了コード0にマップする
+test-success-exit-code = 33
+
 [profile.dev]
 # panic = "abort" # アンワインドを無効化させる
 
