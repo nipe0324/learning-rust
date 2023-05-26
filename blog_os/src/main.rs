@@ -1,13 +1,11 @@
 #![no_std] // OSの機能に依存している標準ライブラリにリンクしない
 #![no_main] // 通常のエントリポイントを使わないようにする
 #![feature(custom_test_frameworks)] // カスタムテストフレームワークを使うための機能
-#![test_runner(crate::test_runner)] // カスタムテストランナーを使う
+#![test_runner(blog_os::test_runner)] // カスタムテストランナーを使う
 #![reexport_test_harness_main = "test_main"] // テストランナーのエントリポイントを`test_main`にする
 
+use blog_os::println;
 use core::panic::PanicInfo;
-
-mod serial;
-mod vga_buffer;
 
 // リンカーはデフォルトで、`_start`という名前の関数を探すので
 // この関数がエントリポイントになる
@@ -33,52 +31,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    serial_println!("[failed]\n");
-    serial_println!("Error: {}\n", info);
-    exit_qemu(QemuExitCode::Failed);
-    loop {}
-}
-
-// 終了コード
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)] // 各列挙子をu32として表現する
-pub enum QemuExitCode {
-    Success = 0x10,
-    Failed = 0x11,
-}
-
-pub fn exit_qemu(exit_code: QemuExitCode) {
-    use x86_64::instructions::port::Port;
-
-    unsafe {
-        let mut port = Port::new(0xf4);
-        port.write(exit_code as u32);
-    }
-}
-
-pub trait Testable {
-    fn run(&self) -> ();
-}
-
-impl<T> Testable for T
-where
-    T: Fn(),
-{
-    fn run(&self) {
-        serial_print!("{}...\t", core::any::type_name::<T>());
-        self();
-        serial_println!("[ok]");
-    }
-}
-
-#[cfg(test)]
-fn test_runner(tests: &[&dyn Testable]) {
-    serial_println!("Running {} tests", tests.len());
-    for test in tests {
-        test.run();
-    }
-
-    exit_qemu(QemuExitCode::Success);
+    blog_os::test_panic_handler(info)
 }
 
 #[test_case]
