@@ -41,3 +41,7 @@ test-timeout = 60
 
 [profile.release]
 panic = "abort" # アンワインドを無効化させる
+
+[[test]]
+name = "should_panic"
+harness = false
