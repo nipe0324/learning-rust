@@ -11,6 +11,10 @@ pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
 
+pub fn init() {
+    interrupts::init_idt();
+}
+
 // 終了コード
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)] // 各列挙子をu32として表現する
@@ -63,6 +67,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    init();
     test_main();
     loop {}
 }

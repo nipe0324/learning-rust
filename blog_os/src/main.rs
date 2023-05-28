@@ -13,9 +13,15 @@ use core::panic::PanicInfo;
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
+    blog_os::init();
+
+    // ブレークポイント例外を発生させる
+    x86_64::instructions::interrupts::int3();
+
     #[cfg(test)]
     test_main();
 
+    println!("It did not crash!");
     loop {}
 }
 
