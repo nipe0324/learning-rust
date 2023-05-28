@@ -15,18 +15,6 @@ pub extern "C" fn _start() -> ! {
 
     blog_os::init();
 
-    // // ページフォルトを起こす
-    // unsafe {
-    //     *(0x8 as *mut u64) = 42;
-    // };
-
-    fn stack_overflow() {
-        stack_overflow(); // 再帰呼び出しのために、リターンアドレスがプッシュされる
-    }
-
-    // スタックオーバーフローを起こす
-    stack_overflow();
-
     #[cfg(test)]
     test_main();
 
