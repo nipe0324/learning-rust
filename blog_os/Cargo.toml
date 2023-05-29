@@ -24,6 +24,9 @@ x86_64 = "0.14.2"
 # 16550 UART シリアルポートのドライバ
 uart_16550 = "0.2.0"
 
+# Intel 8259 割り込みコントローラ(PIC)
+pic8259 = "0.10.1"
+
 [package.metadata.bootimage]
 # bootimage runnerは、test-argsをすべてのテスト実行可能ファイルの標準QEMUコマンドに追加する
 test-args = [

@@ -106,6 +106,16 @@ qemu-system-x86_64 -drive format=raw,file=target/x86_64-blog_os/debug/bootimage-
     - ダブルフォルトのハンドラを登録する
     - ダブルフォルトがスタックオーバーフロー下でも動くように、スタックを切り替えるようにする
   - ハードウェア割り込み
+    - 割り込みコントローラがすべてのデザ椅子からの割り込みを取りまとめてCPUに通知する
+    - 割り込みコントローラはプログラム可能で、PIC(Programmable Interrupt Controller)と呼ばれる
+    - ```
+                            ____________             _____
+        Timer ------------> |            |           |     |
+        Keyboard ---------> | Interrupt  |---------> | CPU |
+        Other Hardware ---> | Controller |           |_____|
+        Etc. -------------> |____________|
+      ```
+
 - メモリ管理
   - ページング
   - ヒープ割り当て

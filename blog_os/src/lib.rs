@@ -12,9 +12,13 @@ pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
 
+// 初期化
 pub fn init() {
     gdt::init();
     interrupts::init_idt();
+    unsafe { interrupts::PICS.lock().initialize() };
+    //CPUの設定で割り込みを有効化させる
+    x86_64::instructions::interrupts::enable();
 }
 
 // 終了コード
