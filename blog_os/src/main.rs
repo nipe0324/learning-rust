@@ -19,7 +19,10 @@ pub extern "C" fn _start() -> ! {
     test_main();
 
     println!("It did not crash!");
-    loop {}
+    loop {
+        use blog_os::print;
+        print!("-");
+    }
 }
 
 // パニック時に呼ばれる関数
