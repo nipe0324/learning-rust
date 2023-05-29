@@ -21,6 +21,13 @@ pub fn init() {
     x86_64::instructions::interrupts::enable();
 }
 
+// hit命令（次の割り込みが入るまで CPU をスリープさせる）
+pub fn hit_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
+}
+
 // 終了コード
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)] // 各列挙子をu32として表現する
@@ -66,7 +73,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
-    loop {}
+    hit_loop();
 }
 
 /// `cargo test`のときのエントリポイント
@@ -75,7 +82,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     init();
     test_main();
-    loop {}
+    hit_loop();
 }
 
 #[cfg(test)]
