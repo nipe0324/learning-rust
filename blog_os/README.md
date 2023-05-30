@@ -115,6 +115,7 @@ qemu-system-x86_64 -drive format=raw,file=target/x86_64-blog_os/debug/bootimage-
         Other Hardware ---> | Controller |           |_____|
         Etc. -------------> |____________|
       ```
+    - タイマー割り込み、キーボード割り込みのハンドラの実装をする
 
 - メモリ管理
   - ページング
