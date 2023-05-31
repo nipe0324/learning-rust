@@ -15,11 +15,16 @@ pub extern "C" fn _start() -> ! {
 
     blog_os::init();
 
+    let ptr = 0x00 as *mut u32;
+    unsafe {
+        *ptr = 42;
+    }
+
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
-    blog_os::hit_loop();
+    blog_os::hlt_loop();
 }
 
 // パニック時に呼ばれる関数
@@ -27,7 +32,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    blog_os::hit_loop();
+    blog_os::hlt_loop();
 }
 
 // テストのパニック時に呼ばれる関数

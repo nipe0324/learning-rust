@@ -22,7 +22,7 @@ pub fn init() {
 }
 
 // hit命令（次の割り込みが入るまで CPU をスリープさせる）
-pub fn hit_loop() -> ! {
+pub fn hlt_loop() -> ! {
     loop {
         x86_64::instructions::hlt();
     }
@@ -73,7 +73,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
-    hit_loop();
+    hlt_loop();
 }
 
 /// `cargo test`のときのエントリポイント
@@ -82,7 +82,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     init();
     test_main();
-    hit_loop();
+    hlt_loop();
 }
 
 #[cfg(test)]
