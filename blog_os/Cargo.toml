@@ -7,7 +7,8 @@ edition = "2018"
 
 [dependencies]
 # BIOS と UEFI の両方で動作する実験的な x86_64 ブートローダー
-bootloader = "0.9.23"
+# 全物理メモリを仮想メモリにマップする機能を有効化する
+bootloader = { version = "0.9.23", features = ["map_physical_memory"] }
 
 # コンパイラに対して、揮発性メモリアクセスの最適化を行わないようにする
 volatile = "0.2.6"

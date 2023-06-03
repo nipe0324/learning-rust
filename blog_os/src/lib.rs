@@ -21,7 +21,7 @@ pub fn init() {
     x86_64::instructions::interrupts::enable();
 }
 
-// hit命令（次の割り込みが入るまで CPU をスリープさせる）
+// hlt命令（次の割り込みが入るまで CPU をスリープさせる）
 pub fn hlt_loop() -> ! {
     loop {
         x86_64::instructions::hlt();
@@ -76,10 +76,15 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     hlt_loop();
 }
 
+#[cfg(test)]
+use bootloader::{entry_point, BootInfo};
+
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
 /// `cargo test`のときのエントリポイント
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+pub fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     init();
     test_main();
     hlt_loop();
