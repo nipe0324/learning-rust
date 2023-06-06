@@ -6,6 +6,7 @@
 
 extern crate alloc;
 
+use alloc::boxed::Box;
 use blog_os::println;
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
@@ -13,6 +14,7 @@ use core::panic::PanicInfo;
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    use blog_os::allocator;
     use blog_os::memory::{self, BootInfoFrameAllocator};
     use x86_64::{structures::paging::Page, VirtAddr};
 
@@ -31,7 +33,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
     unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
 
-    use alloc::boxed::Box;
+    // ヒープ領域にデータを格納
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+
     let x = Box::new(41);
 
     #[cfg(test)]
