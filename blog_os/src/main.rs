@@ -4,6 +4,8 @@
 #![test_runner(blog_os::test_runner)] // カスタムテストランナーを使う
 #![reexport_test_harness_main = "test_main"] // テストランナーのエントリポイントを`test_main`にする
 
+extern crate alloc;
+
 use blog_os::println;
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
@@ -28,6 +30,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // 新しいマッピングを使って、文字列`New!`を画面に書き出す
     let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
     unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
+
+    use alloc::boxed::Box;
+    let x = Box::new(41);
 
     #[cfg(test)]
     test_main();
