@@ -140,6 +140,6 @@ qemu-system-x86_64 -drive format=raw,file=target/x86_64-blog_os/debug/bootimage-
   - ヒープ割り当て
     - 動的メモリの基礎を学ぶ
     - アロケーションインターフェイスを実装してヒープメモリ領域を作成する
-  - アロケーター
+    - 独自のヒープアロケータを最初から作成する
 - マルチタスク
   - Async / Await
