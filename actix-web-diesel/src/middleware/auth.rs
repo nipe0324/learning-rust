@@ -19,9 +19,13 @@ use uuid::Uuid;
 
 const TOKEN_IDENTIFIER: &str = "Token";
 
-const SKIP_AUTH_ROUTES: [SkipAuthRoute; 7] = [
+const SKIP_AUTH_ROUTES: [SkipAuthRoute; 6] = [
     SkipAuthRoute {
         path: "/api/healthcheck",
+        method: Method::GET,
+    },
+    SkipAuthRoute {
+        path: "/api/tags",
         method: Method::GET,
     },
     SkipAuthRoute {
@@ -37,15 +41,7 @@ const SKIP_AUTH_ROUTES: [SkipAuthRoute; 7] = [
         method: Method::GET,
     },
     SkipAuthRoute {
-        path: "/api/articles/{article_title_slug}",
-        method: Method::GET,
-    },
-    SkipAuthRoute {
         path: "/api/articles/{article_title_slug}/comments",
-        method: Method::GET,
-    },
-    SkipAuthRoute {
-        path: "/api/tags",
         method: Method::GET,
     },
 ];
